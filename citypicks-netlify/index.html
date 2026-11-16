@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CityPick's</title>
+<meta name="description" content="Les meilleures adresses d'Europe, triées par budget : restos, activités, bars et musées dans 6 villes, avec un assistant IA.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000d10'/%3E%3Ctext x='32' y='46' font-family='Arial' font-weight='700' font-size='40' text-anchor='middle' fill='%23bc7155'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&display=swap">
+<style>
+/* Layout : éditorial. Hero ciel pâle + wordmark géant, bandes blanches et bandes nuit alternées, cartes à angles vifs, actions en pilules. Une seule carte argile par page. */
+:root{
+  --canvas:#ffffff; --ink:#000d10; --ash:#6c6c74; --pebble:#d5d3d4; --soft:#f3f3f2;
+  --hull:#0f0f1c; --deck:#151623; --on-dark:#ffffff; --on-dark-muted:#a3a3ab;
+  --clay:#bc7155; --on-clay:#ffffff; --sky-top:#dbe7f0; --sky-bottom:#f6efe4;
+  --font:"Inter Tight","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --pill:1000px; --max:1200px; --section:80px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --canvas:#0b0c16; --ink:#f4f2ee; --ash:#a3a3ab; --pebble:#2a2b3a; --soft:#151623;
+  --hull:#151623; --deck:#1c1d2e; --on-dark:#f4f2ee; --on-dark-muted:#a3a3ab;
+  --sky-top:#1a2233; --sky-bottom:#262130; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --canvas:#0b0c16; --ink:#f4f2ee; --ash:#a3a3ab; --pebble:#2a2b3a; --soft:#151623;
+  --hull:#151623; --deck:#1c1d2e; --on-dark:#f4f2ee; --on-dark-muted:#a3a3ab;
+  --sky-top:#1a2233; --sky-bottom:#262130; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.61}
+img{max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:var(--max);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-weight:700;margin:0;text-wrap:balance}
+h1{font-size:clamp(40px,6vw,63px);line-height:1;letter-spacing:-.02em}
+h2{font-size:clamp(30px,4vw,52px);line-height:1;letter-spacing:-.01em}
+h3{font-size:23px;line-height:1.1;letter-spacing:-.01em}
+p{margin:0}
+a{color:inherit}
+.muted{color:var(--ash)}
+.eyebrow{font-size:14px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ash)}
+:focus-visible{outline:3px solid var(--clay);outline-offset:3px}
+
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--canvas) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--pebble);padding-top:env(safe-area-inset-top,0px)}
+.nav{display:flex;align-items:center;gap:20px;padding-block:14px;flex-wrap:wrap}
+.logo{font-weight:700;font-size:24px;letter-spacing:-.03em;text-decoration:none}
+.nav nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.nav nav a{text-decoration:none;font-size:16px;color:var(--ash);padding:8px 14px;border-radius:var(--pill)}
+.nav nav a:hover{color:var(--ink)}
+.nav nav a[aria-current="page"]{color:var(--canvas);background:var(--ink)}
+.count{display:inline-block;min-width:20px;margin-left:6px;padding:0 6px;border-radius:var(--pill);background:var(--clay);color:var(--on-clay);font-size:12px;text-align:center;line-height:20px}
+.who{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--ash)}
+.demo-flag{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:var(--pill);border:1px dashed var(--ash);color:var(--ash)}
+
+.btn,button{font:inherit;font-size:17px;font-weight:700;line-height:1;border:1px solid var(--ink);border-radius:var(--pill);padding:15px 22px 16px;background:var(--ink);color:var(--canvas);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost,button.ghost{background:transparent;color:var(--ink)}
+.btn.small,button.small{font-size:15px;padding:10px 16px}
+button:disabled{opacity:.5;cursor:default}
+
+.hero{background:linear-gradient(180deg,var(--sky-top),var(--sky-bottom));padding-block:56px 64px;overflow:hidden}
+.hero .wrap{display:grid;gap:32px}
+.wordmark{font-size:clamp(64px,15vw,187px);line-height:.8;letter-spacing:-.02em;font-weight:700}
+.hero-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:end}
+.hero-row h1{text-align:right}
+.search{display:flex;gap:8px;flex-wrap:wrap;max-width:560px}
+.search input{flex:1;min-width:0;font:inherit;font-size:17px;padding:14px 22px;border-radius:var(--pill);border:1px solid var(--ink);background:var(--canvas);color:var(--ink)}
+.search-msg{font-size:15px;margin-top:8px}
+
+section.band{padding-block:var(--section)}
+section.band.dark{background:var(--hull);color:var(--on-dark)}
+section.band.dark .muted{color:var(--on-dark-muted)}
+.head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:40px}
+
+.cities{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.city{position:relative;display:block;text-decoration:none;color:#fff;aspect-ratio:4/5;max-width:100%;overflow:hidden;background:var(--deck)}
+.city img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
+.city::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,13,16,.75))}
+.city span{position:absolute;left:22px;right:22px;bottom:20px;z-index:1;display:grid;gap:2px}
+.city b{font-size:37px;line-height:1;letter-spacing:-.01em}
+.city small{font-size:16px;opacity:.85}
+.city:hover img{transform:scale(1.04)}
+
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 40px}
+.legend div{border-top:1px solid color-mix(in srgb,var(--on-dark) 25%,transparent);padding-top:16px;display:grid;gap:8px;padding-bottom:24px;justify-items:start}
+.tag{display:inline-flex;align-items:center;font-size:14px;font-weight:700;line-height:1;padding:6px 11px;border-radius:var(--pill);white-space:nowrap;border:1px solid var(--ink);background:var(--ink);color:var(--canvas)}
+.tag.free{background:transparent;color:var(--ink)}
+.tag.cat{background:transparent;color:var(--ash);border-color:var(--pebble);font-weight:500}
+.dark .tag{border-color:var(--on-dark);background:var(--on-dark);color:var(--hull)}
+.dark .tag.free{background:transparent;color:var(--on-dark)}
+
+.feature{background:var(--clay);color:var(--on-clay);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);margin-bottom:48px}
+.feature .txt{padding:53px 59px;display:grid;gap:18px;align-content:center}
+.feature .txt .eyebrow{color:var(--on-clay);opacity:.85}
+.feature .tag{border-color:var(--on-clay);background:var(--on-clay);color:var(--clay)}
+.feature .tag.free{background:transparent;color:var(--on-clay)}
+.feature .tag.cat{background:transparent;border-color:color-mix(in srgb,var(--on-clay) 50%,transparent);color:var(--on-clay)}
+.feature .btn{background:var(--on-clay);color:#000d10;border-color:var(--on-clay)}
+.feature .fav{color:var(--on-clay);border-color:color-mix(in srgb,var(--on-clay) 60%,transparent)}
+.feature .fav[aria-pressed="true"]{background:var(--on-clay);color:var(--clay)}
+.feature .addr{color:var(--on-clay)}
+.feature .pic{min-height:320px;background:var(--deck)}
+.feature .pic img{width:100%;height:100%;object-fit:cover;display:block}
+
+.filters{display:flex;flex-wrap:wrap;gap:20px 32px;align-items:end;padding-block:24px;border-top:1px solid var(--pebble);border-bottom:1px solid var(--pebble);margin:32px 0}
+.filters fieldset{border:0;padding:0;margin:0;display:flex;gap:6px;flex-wrap:wrap}
+.filters legend,.field label{font-size:14px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);margin-bottom:8px;padding:0}
+.chip{font-size:15px;font-weight:500;padding:9px 16px;background:transparent;color:var(--ink);border:1px solid var(--pebble)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+.field{display:flex;flex-direction:column;flex:1;min-width:200px}
+.field input,.field select,.field textarea{font:inherit;font-size:17px;padding:11px 18px;border:1px solid var(--pebble);border-radius:var(--pill);background:var(--canvas);color:var(--ink)}
+.field textarea{border-radius:22px;min-height:110px;resize:vertical}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px;color:var(--ash)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:48px 24px}
+.card{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card .pic{display:block;aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--deck)}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.ph{width:100%;height:100%;display:grid;place-items:center;font-size:64px;font-weight:700;letter-spacing:-.03em;color:#fff;background:var(--deck)}
+.card .title{border-top:1px solid var(--pebble);padding-top:14px;display:grid;gap:10px}
+.card .title a{text-decoration:none}
+.card .title a:hover{text-decoration:underline;text-underline-offset:4px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.card p{color:var(--ash);font-size:17px}
+.addr{display:inline-flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.4;color:var(--ink);text-decoration:underline;text-decoration-color:var(--pebble);text-underline-offset:4px}
+.addr:hover{text-decoration-color:currentColor}
+.addr svg{flex:none;margin-top:1px}
+.card .row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+.fav{font-size:15px;padding:9px 16px;background:transparent;color:var(--ink);border:1px solid var(--pebble)}
+.fav[aria-pressed="true"]{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+.pick{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.by{font-size:14px;color:var(--ash)}
+.credit{font-size:13px;color:var(--ash);line-height:1.4}
+
+.back{color:var(--ash);text-decoration:none;font-size:16px}
+.back:hover{color:var(--ink)}
+.detail{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:48px;margin-top:24px}
+.detail .pic{aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--deck)}
+.facts{background:var(--hull);color:var(--on-dark);padding:38px;display:grid;gap:22px;align-content:start}
+.facts dl{margin:0;display:grid}
+.facts dl div{border-top:1px solid color-mix(in srgb,var(--on-dark) 20%,transparent);padding-block:12px;display:grid;gap:2px}
+.facts dt{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--on-dark-muted)}
+.facts dd{margin:0;font-size:18px}
+.facts .addr{color:var(--on-dark)}
+.facts .btn{background:var(--on-dark);color:var(--hull);border-color:var(--on-dark)}
+.facts .fav{color:var(--on-dark);border-color:color-mix(in srgb,var(--on-dark) 40%,transparent)}
+.facts .fav[aria-pressed="true"]{background:var(--on-dark);color:var(--hull)}
+
+/* assistant */
+.chat{display:grid;grid-template-rows:1fr auto;border:1px solid var(--pebble);min-height:520px;margin-top:32px}
+.msgs{padding:24px;display:flex;flex-direction:column;gap:20px;max-height:62vh;overflow-y:auto}
+.msg{max-width:min(720px,100%);display:grid;gap:12px}
+.msg .bubble{padding:14px 20px;border-radius:22px;font-size:17px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end}
+.msg.user .bubble{background:var(--ink);color:var(--canvas);border-bottom-right-radius:6px}
+.msg.bot .bubble{background:var(--soft);border-bottom-left-radius:6px}
+.msg.err .bubble{background:transparent;border:1px solid var(--clay);color:var(--ink)}
+.minis{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.mini{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;border-top:1px solid var(--pebble);padding-top:12px;text-decoration:none}
+.mini .pic{aspect-ratio:1;overflow:hidden;background:var(--deck)}
+.mini .ph{font-size:28px}
+.mini b{font-size:17px;line-height:1.2;display:block}
+.mini span{font-size:14px;color:var(--ash)}
+.composer{display:flex;gap:8px;padding:16px;border-top:1px solid var(--pebble);flex-wrap:wrap}
+.composer input{flex:1;min-width:0;font:inherit;font-size:17px;padding:14px 22px;border-radius:var(--pill);border:1px solid var(--pebble);background:var(--canvas);color:var(--ink)}
+.suggest{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+.typing{color:var(--ash);font-size:15px}
+.ai-note{font-size:14px;color:var(--ash);margin-top:12px}
+.ask-band{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;padding-block:28px;border-top:1px solid var(--pebble);border-bottom:1px solid var(--pebble);margin-bottom:40px}
+
+main{padding-block:48px var(--section)}
+.lede{font-size:20px;color:var(--ash);max-width:60ch;margin-top:16px}
+.empty{padding:48px 24px;text-align:center;color:var(--ash);border-top:1px solid var(--pebble);border-bottom:1px solid var(--pebble)}
+.banner{padding:16px 22px;background:var(--soft);margin-bottom:24px;font-size:16px}
+.form{display:grid;gap:18px;max-width:720px;margin-top:32px}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.err{color:var(--clay);font-size:16px}
+.ok{font-size:16px}
+.tabs{display:flex;gap:6px;margin-top:32px}
+.list{display:grid;margin-top:16px}
+.item{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding-block:18px;border-top:1px solid var(--pebble)}
+.item > div{min-width:0;display:grid;gap:6px}
+.item .acts{display:flex;gap:8px}
+.status{font-size:13px;font-weight:700;padding:5px 10px;border-radius:var(--pill);border:1px solid var(--pebble)}
+.status.approved{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+.status.rejected{color:var(--ash);text-decoration:line-through}
+.prose{max-width:65ch;display:grid;gap:18px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--canvas);padding:13px 22px;border-radius:var(--pill);font-size:16px;font-weight:500;z-index:20}
+footer{background:#000d10;color:#fff;padding-block:64px 40px}
+footer .big{font-size:clamp(56px,12vw,131px);line-height:.85;letter-spacing:-.02em;font-weight:700}
+footer p{color:#a3a3ab;font-size:15px;margin-top:28px;max-width:70ch}
+@media (max-width:820px){
+  .hero-row{grid-template-columns:1fr}.hero-row h1{text-align:left}
+  .feature{grid-template-columns:1fr}.feature .txt{padding:32px 24px}.feature .pic{min-height:240px}
+  .detail{grid-template-columns:1fr;gap:28px}.facts{padding:28px 22px}
+  .form .two{grid-template-columns:1fr}
+  .msgs{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){.city img{transition:none}}
+</style>
+</head>
+<body>
+
+<header><div class="wrap nav">
+  <a class="logo" href="#accueil">CityPick's</a>
+  <nav aria-label="Navigation principale">
+    <a href="#accueil" data-nav="accueil">Villes</a>
+    <a href="#assistant" data-nav="assistant">Assistant IA</a>
+    <a href="#favoris" data-nav="favoris">Favoris<span class="count" id="favCount">0</span></a>
+    <a href="#proposer" data-nav="proposer">Proposer</a>
+    <a href="#moderation" data-nav="moderation" id="modLink" hidden>Modération</a>
+    <a href="#a-propos" data-nav="a-propos">À propos</a>
+    <a href="#compte" data-nav="compte">Mon compte</a>
+  </nav>
+  <div class="who" id="who"></div>
+</div></header>
+
+<div id="app"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<footer><div class="wrap">
+  <div class="big">CityPick's.</div>
+  <p>Prototype réalisé dans le cadre d'une formation. Adresses données à titre indicatif, prix indicatifs par personne : vérifiez horaires et tarifs avant d'y aller. Photos : Wikimedia Commons, auteurs et licences crédités sur chaque fiche. Assistant : réponses générées par IA (Google Gemini) à partir du catalogue. Données enregistrées : e-mail, pseudo, ville préférée, favoris et propositions, uniquement pour faire fonctionner le service ; supprimables à tout moment depuis Mon compte.</p>
+</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+"use strict";
+/* ================= configuration ================= */
+const CFG = window.CITYPICKS_CONFIG || {};
+const LIVE = !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && window.supabase);
+const sb = LIVE ? window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY) : null;
+
+const PRICE = {
+  free:{label:"Gratuit", cls:"free", rank:0, range:"0 €"},
+  p1:{label:"€", cls:"", rank:1, range:"moins de 15 €"},
+  p2:{label:"€€", cls:"", rank:2, range:"15 à 40 €"},
+  p3:{label:"€€€", cls:"", rank:3, range:"plus de 40 €"}
+};
+const CATS = ["Restaurant","Activité","Bar & nuit","Culture"];
+const CITIES = {
+  paris:{name:"Paris", country:"France", cover:"s32", feature:"s01"},
+  lisbonne:{name:"Lisbonne", country:"Portugal", cover:"s44", feature:"s05"},
+  barcelone:{name:"Barcelone", country:"Espagne", cover:"s10", feature:"s10"},
+  rome:{name:"Rome", country:"Italie", cover:"s58", feature:"s13"},
+  berlin:{name:"Berlin", country:"Allemagne", cover:"s69", feature:"s18"},
+  amsterdam:{name:"Amsterdam", country:"Pays-Bas", cover:"s89", feature:"s22"}
+};
+const HOME_FEATURE = "s05";
+const SUGGESTIONS = ["Les meilleures activités à faire à Paris","Un resto pas cher à Rome","Que faire gratuitement à Berlin ?","Une soirée à Lisbonne pour moins de 15 €","Un musée incontournable à Amsterdam"];
+
+/* ================= état ================= */
+const S = {
+  loading:true, error:false,
+  spots:[], user:null, profile:null, isAdmin:false,
+  favs:new Set(), myProps:[], allProps:[], profiles:{},
+  f:{cats:new Set(), prices:new Set(), q:"", sort:"pick"},
+  authTab:"login", recovery:false,
+  chat:[], chatBusy:false, chatDraft:""
+};
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const priceTag = p => PRICE[p] ? `<span class="tag ${PRICE[p].cls}">${PRICE[p].label}</span>` : "";
+const initials = n => String(n).split(/\s+/).filter(w=>/^[A-ZÀ-Ý]/.test(w)).slice(0,2).map(w=>w[0]).join("") || String(n)[0] || "?";
+const route0 = () => decodeURIComponent((location.hash||"#accueil").slice(1));
+const spotById = id => S.spots.find(s=>s.id===id);
+const isIn = () => LIVE ? !!(S.user && S.profile) : false;
+const mapsUrl = s => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([s.name, s.address || s.hood, CITIES[s.city]?.name].filter(Boolean).join(", "));
+const PIN = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>`;
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2800); }
+const safeImg = p => /^img\/[\w.-]+\.(jpg|jpeg|png|webp)$/i.test(p||"") ? p : "";
+
+/* favoris en mode démo : dans le navigateur */
+function demoFavsLoad(){ try{ return new Set(JSON.parse(localStorage.getItem("cp-favs")||"[]")); }catch(e){ return new Set(); } }
+function demoFavsSave(){ try{ localStorage.setItem("cp-favs", JSON.stringify([...S.favs])); }catch(e){} }
+
+/* ================= morceaux d'interface ================= */
+const photo = (s, alt) => s && safeImg(s.photo) ? `<img src="${esc(safeImg(s.photo))}" alt="${esc(alt ?? s.name)}" loading="lazy">` : `<div class="ph" aria-hidden="true">${esc(initials(s ? s.name : "?"))}</div>`;
+const addrLink = s => `<a class="addr" href="${mapsUrl(s)}" target="_blank" rel="noopener">${PIN}<span>${esc(s.address || s.hood)}</span></a>`;
+const canFav = () => !LIVE || isIn();
+const favBtn = (id,on) => canFav() ? `<button class="fav" data-fav="${esc(id)}" aria-pressed="${on}">${on?"♥ Enregistré":"♡ Enregistrer"}</button>` : "";
+const byLine = s => s.proposed_by_name ? `<span class="by">Proposé par ${esc(s.proposed_by_name)}</span>` : "";
+
+function card(s){
+  return `<article class="card">
+    <a class="pic" href="#spot-${esc(s.id)}" tabindex="-1">${photo(s,"")}</a>
+    <div class="title">
+      ${s.pick?'<span class="pick">Le pick de la rédac</span>':''}
+      <h3><a href="#spot-${esc(s.id)}">${esc(s.name)}</a></h3>
+      <div class="tags">${priceTag(s.price)}<span class="tag cat">${esc(s.cat)}</span><span class="tag cat">${esc(s.hood)}</span></div>
+    </div>
+    <p>${esc(s.desc)}</p>
+    ${addrLink(s)}
+    ${byLine(s)}
+    <div class="row">${favBtn(s.id,S.favs.has(s.id))}</div>
+  </article>`;
+}
+function feature(s, label){
+  if(!s) return "";
+  return `<article class="feature">
+    <div class="txt">
+      <span class="eyebrow">${esc(label)}</span>
+      <h2>${esc(s.name)}.</h2>
+      <div class="tags">${priceTag(s.price)}<span class="tag cat">${esc(s.cat)}</span><span class="tag cat">${esc(CITIES[s.city].name)}</span></div>
+      <p>${esc(s.desc)}</p>
+      ${addrLink(s)}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#spot-${esc(s.id)}">Voir la fiche</a>${favBtn(s.id,S.favs.has(s.id))}</div>
+    </div>
+    <div class="pic">${photo(s,"")}</div>
+  </article>`;
+}
+function gate(){
+  if(S.loading) return `<div class="empty">Chargement des adresses…</div>`;
+  if(S.error) return `<div class="empty">Les adresses n'ont pas pu être chargées. Vérifiez votre connexion puis rechargez la page.</div>`;
+  return "";
+}
+function needAccount(what){
+  if(!LIVE) return `<div class="empty">Les comptes ne sont pas encore activés sur ce site (mode démo).</div>`;
+  return `<div class="empty">Connectez-vous ou créez un compte pour ${what}.<br><br><a class="btn" href="#compte">Me connecter</a></div>`;
+}
+
+/* ================= vues ================= */
+function home(){
+  const n = k => S.spots.filter(s=>s.city===k).length;
+  return `<section class="hero"><div class="wrap">
+      <div class="wordmark">CityPick's.</div>
+      <div class="hero-row">
+        <form class="search" id="citySearch" role="search">
+          <label class="eyebrow" for="cityInput" style="width:100%">Où partez-vous ?</label>
+          <input id="cityInput" list="cityList" placeholder="Paris, Lisbonne, Berlin…" autocomplete="off">
+          <datalist id="cityList">${Object.values(CITIES).map(c=>`<option value="${c.name}">`).join("")}</datalist>
+          <button type="submit">Voir les spots</button>
+          <p id="searchMsg" class="search-msg muted" hidden style="width:100%"></p>
+        </form>
+        <h1>Les meilleures adresses d'Europe. Triées par budget.</h1>
+      </div>
+    </div></section>
+    <section class="band"><div class="wrap">
+      ${gate() || feature(spotById(HOME_FEATURE),"Le pick de la semaine")}
+      <div class="ask-band"><div style="display:grid;gap:6px"><h3>Pas d'idée ? Demandez à l'assistant.</h3><p class="muted" style="font-size:17px">« Les meilleures activités à faire à Paris », « un resto pas cher à Rome »…</p></div><a class="btn" href="#assistant">Poser une question</a></div>
+      <div class="head"><h2>Six villes,<br>${S.loading?"des dizaines d'":S.spots.length+" "}adresses.</h2><p class="muted" style="max-width:36ch">Restos, activités, bars et musées repérés ville par ville, chacun avec son tag de prix.</p></div>
+      <div class="cities">${Object.entries(CITIES).map(([k,c])=>`<a class="city" href="#${k}">${photo(spotById(c.cover), c.name)}<span><b>${c.name}</b><small>${c.country} · ${S.loading?"…":n(k)+" spots"}</small></span></a>`).join("")}</div>
+    </div></section>
+    <section class="band dark"><div class="wrap">
+      <div class="head"><h2>Lire les tags.</h2><p class="muted" style="max-width:40ch">Un repère par adresse, pour savoir avant d'y aller si elle rentre dans votre budget. Prix indicatif par personne.</p></div>
+      <div class="legend">${Object.keys(PRICE).map(p=>`<div>${priceTag(p)}<span>${PRICE[p].range}</span></div>`).join("")}</div>
+    </div></section>`;
+}
+
+function cityView(key){
+  const c = CITIES[key], f = S.f;
+  return `<main class="wrap"><a class="back" href="#accueil">← Toutes les villes</a>
+  <h1 style="margin-top:16px">${c.name}.</h1>
+  <p class="lede">Nos adresses à ${c.name}, filtrées selon vos envies et votre budget. Touchez une adresse pour l'ouvrir dans Google Maps.</p>
+  <div id="cityFeature" style="margin-top:40px"></div>
+  <div class="ask-band"><p style="font-size:17px">Besoin d'un conseil pour ${c.name} ?</p><button class="ghost small" data-ask="Que me conseilles-tu à ${c.name} ?">Demander à l'assistant</button></div>
+  <div class="filters">
+    <fieldset><legend>Catégorie</legend>${CATS.map(x=>`<button class="chip" data-cat="${x}" aria-pressed="${f.cats.has(x)}">${x}</button>`).join("")}</fieldset>
+    <fieldset><legend>Prix</legend>${Object.keys(PRICE).map(p=>`<button class="chip" data-price="${p}" aria-pressed="${f.prices.has(p)}">${PRICE[p].label}</button>`).join("")}</fieldset>
+    <div class="field"><label for="q">Rechercher</label><input id="q" value="${esc(f.q)}" placeholder="Nom, quartier, rue…"></div>
+    <div class="field" style="flex:0 1 220px"><label for="sort">Trier</label><select id="sort">
+      <option value="pick" ${f.sort==="pick"?"selected":""}>Picks d'abord</option>
+      <option value="asc" ${f.sort==="asc"?"selected":""}>Prix croissant</option>
+      <option value="desc" ${f.sort==="desc"?"selected":""}>Prix décroissant</option></select></div>
+  </div>
+  <div id="results"></div></main>`;
+}
+function renderResults(key){
+  const el = document.getElementById("results"); if(!el) return;
+  const fe = document.getElementById("cityFeature");
+  if(fe) fe.innerHTML = gate() ? "" : feature(spotById(CITIES[key].feature),"Le pick de la rédac à " + CITIES[key].name);
+  const g = gate(); if(g){ el.innerHTML = g; return; }
+  const f = S.f, q = f.q.trim().toLowerCase();
+  let list = S.spots.filter(s=>s.city===key
+    && (!f.cats.size || f.cats.has(s.cat))
+    && (!f.prices.size || f.prices.has(s.price))
+    && (!q || [s.name,s.hood,s.address].join(" ").toLowerCase().includes(q)));
+  const r = s => (PRICE[s.price]||{rank:9}).rank;
+  if(f.sort==="asc") list.sort((a,b)=>r(a)-r(b));
+  else if(f.sort==="desc") list.sort((a,b)=>r(b)-r(a));
+  else list.sort((a,b)=>(b.pick?1:0)-(a.pick?1:0));
+  const active = f.cats.size||f.prices.size||q;
+  el.innerHTML = `<div class="toolbar"><span>${list.length} spot${list.length>1?"s":""}</span>${active?'<button class="ghost small" id="reset">Effacer les filtres</button>':""}</div>` +
+    (list.length ? `<div class="grid">${list.map(card).join("")}</div>` : `<div class="empty">Aucun spot ne correspond à ces filtres. Essayez un autre prix ou une autre catégorie.</div>`);
+}
+
+function spotView(id){
+  const s = spotById(id);
+  if(!s) return `<main class="wrap">${gate() || `<div class="empty">Ce spot n'existe pas. <a href="#accueil">Retour aux villes</a></div>`}</main>`;
+  const c = CITIES[s.city];
+  return `<main class="wrap"><a class="back" href="#${s.city}">← Spots à ${c.name}</a>
+  <div class="detail">
+    <div style="display:grid;gap:18px;min-width:0;align-content:start">
+      <div class="pic">${photo(s)}</div>
+      ${s.credit?`<p class="credit">Photo : ${/^https:\/\/commons\.wikimedia\.org\//.test(s.source||"")?`<a href="${esc(s.source)}" target="_blank" rel="noopener">${esc(s.credit)}</a>`:esc(s.credit)}</p>`:""}
+      ${s.pick?'<span class="pick">Le pick de la rédac</span>':''}
+      <h1>${esc(s.name)}.</h1>
+      <div class="tags">${priceTag(s.price)}<span class="tag cat">${esc(s.cat)}</span><span class="tag cat">${esc(s.hood)}</span></div>
+      <p class="lede" style="margin:0">${esc(s.desc)}</p>
+      ${byLine(s)}
+    </div>
+    <aside class="facts">
+      <dl>
+        <div><dt>Adresse</dt><dd>${addrLink(s)}</dd></div>
+        <div><dt>Ville</dt><dd>${c.name}, ${c.country}</dd></div>
+        <div><dt>Catégorie</dt><dd>${esc(s.cat)}</dd></div>
+        <div><dt>Budget</dt><dd>${PRICE[s.price].label} · ${PRICE[s.price].range} / pers.</dd></div>
+        ${s.tip?`<div><dt>Le conseil CityPick's</dt><dd>${esc(s.tip)}</dd></div>`:""}
+      </dl>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="${mapsUrl(s)}" target="_blank" rel="noopener">${PIN} Ouvrir dans Maps</a>${favBtn(s.id,S.favs.has(s.id))}</div>
+    </aside>
+  </div></main>`;
+}
+
+/* ---------- assistant IA ---------- */
+function miniCard(s){
+  return `<a class="mini" href="#spot-${esc(s.id)}"><div class="pic">${photo(s,"")}</div><div style="min-width:0;display:grid;gap:4px;align-content:start"><b>${esc(s.name)}</b><span>${esc(CITIES[s.city]?.name||"")} · ${esc(s.cat)}</span><div class="tags">${priceTag(s.price)}</div></div></a>`;
+}
+function chatHtml(){
+  if(!S.chat.length) return `<div class="msg bot"><div class="bubble">Bonjour ! Dites-moi où vous partez, ce qui vous fait envie et votre budget. Je vous propose des adresses du catalogue CityPick's.</div></div>`;
+  return S.chat.map(m=>{
+    if(m.role==="user") return `<div class="msg user"><div class="bubble">${esc(m.text)}</div></div>`;
+    const spots = (m.spots||[]).map(spotById).filter(Boolean);
+    return `<div class="msg ${m.error?"err":"bot"}"><div class="bubble">${esc(m.text)}</div>${spots.length?`<div class="minis">${spots.map(miniCard).join("")}</div>`:""}</div>`;
+  }).join("") + (S.chatBusy ? `<div class="msg bot"><div class="typing">L'assistant cherche des adresses…</div></div>` : "");
+}
+function assistantView(){
+  return `<main class="wrap"><h1>Assistant IA.</h1>
+  <p class="lede">Posez votre question comme à un ami qui connaît la ville. L'assistant choisit dans les ${S.spots.length||90} adresses du catalogue et respecte votre budget.</p>
+  <div class="suggest">${SUGGESTIONS.map(t=>`<button class="chip" data-ask="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+  <div class="chat">
+    <div class="msgs" id="msgs" aria-live="polite">${chatHtml()}</div>
+    <form class="composer" id="chatForm">
+      <label for="chatInput" class="eyebrow" hidden>Votre question</label>
+      <input id="chatInput" maxlength="600" placeholder="Ex. : les meilleures activités à faire à Paris" autocomplete="off" value="${esc(S.chatDraft)}">
+      <button type="submit" ${S.chatBusy?"disabled":""}>Envoyer</button>
+      ${S.chat.length?`<button type="button" class="ghost" id="chatReset">Nouvelle conversation</button>`:""}
+    </form>
+  </div>
+  <p class="ai-note">Réponses générées par une IA (Google Gemini) à partir du catalogue CityPick's : elles peuvent contenir des erreurs. Vérifiez horaires et prix sur place. N'indiquez pas d'informations personnelles.</p></main>`;
+}
+function renderChat(){
+  const el = document.getElementById("msgs"); if(!el) return;
+  el.innerHTML = chatHtml(); el.scrollTop = el.scrollHeight;
+  const btn = document.querySelector("#chatForm button[type=submit]"); if(btn) btn.disabled = S.chatBusy;
+  const reset = document.getElementById("chatReset");
+  if(!reset && S.chat.length && !S.chatBusy) route(true);
+}
+async function askAssistant(text){
+  text = String(text||"").trim().slice(0,600);
+  if(!text || S.chatBusy) return;
+  S.chat.push({role:"user", text}); S.chatBusy = true; S.chatDraft = "";
+  if(route0()!=="assistant"){ location.hash = "assistant"; } else { const i=document.getElementById("chatInput"); if(i) i.value=""; renderChat(); }
+  const history = S.chat.filter(m=>!m.error).slice(-8).map(m=>({role:m.role, text:m.text}));
+  try{
+    const r = await fetch("/api/chat", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({messages:history})});
+    let data = null; try{ data = await r.json(); }catch(e){}
+    if(!r.ok || !data || data.error){
+      const msg = data && data.error ? data.error : (r.status===404 ? "L'assistant n'est pas disponible ici : il fonctionne une fois le site publié sur Netlify." : "L'assistant n'a pas pu répondre. Réessayez.");
+      S.chat.push({role:"assistant", text:msg, error:true});
+    } else {
+      S.chat.push({role:"assistant", text:String(data.reply||""), spots:Array.isArray(data.spots)?data.spots:[]});
+    }
+  }catch(e){
+    S.chat.push({role:"assistant", text:"Impossible de joindre l'assistant. Vérifiez votre connexion et réessayez.", error:true});
+  }
+  S.chatBusy = false;
+  if(route0()==="assistant") renderChat();
+  const i=document.getElementById("chatInput"); if(i) i.focus();
+}
+
+/* ---------- favoris, propositions, modération ---------- */
+function favView(){
+  const head = `<main class="wrap"><h1>Mes favoris.</h1><p class="lede">${LIVE?"Les adresses que vous avez enregistrées. Elles sont liées à votre compte : personne d'autre ne les voit.":"Mode démo : vos favoris sont gardés dans ce navigateur."}</p><div style="margin-top:40px">`;
+  if(gate()) return head + gate() + `</div></main>`;
+  if(!canFav()) return head + needAccount("enregistrer des favoris") + `</div></main>`;
+  const list = S.spots.filter(s=>S.favs.has(s.id));
+  return head + (list.length ? `<div class="grid">${list.map(card).join("")}</div>` : `<div class="empty">Aucun favori pour l'instant. Ouvrez une ville et touchez ♡ Enregistrer sur un spot.<br><br><a class="btn" href="#accueil">Choisir une ville</a></div>`) + `</div></main>`;
+}
+const STATUS = {pending:"En attente", approved:"Publiée", rejected:"Refusée"};
+function propItem(p, admin){
+  const c = CITIES[p.city];
+  return `<div class="item"><div>
+      <strong style="font-size:20px">${esc(p.name)}</strong>
+      <span class="tags" style="align-items:center">${priceTag(p.price)}<span class="tag cat">${esc(p.cat)}</span><span class="tag cat">${c?c.name:esc(p.city)}</span><span class="status ${esc(p.status)}">${STATUS[p.status]||""}</span></span>
+      ${p.address?`<span class="muted" style="font-size:15px">${esc(p.address)}</span>`:""}
+      ${admin?`<span class="by">Proposé par ${esc(S.profiles[p.user_id]||"un voyageur")}</span><span class="muted" style="font-size:16px">${esc(p.desc)}</span>`:""}
+    </div>
+    ${admin && p.status==="pending" ? `<div class="acts"><button class="small" data-approve="${esc(p.id)}">Publier</button><button class="ghost small" data-reject="${esc(p.id)}">Refuser</button></div>` : ""}
+  </div>`;
+}
+function proposeView(){
+  const head = `<main class="wrap"><h1>Proposer un spot.</h1><p class="lede">Vous connaissez une adresse qui manque ? Proposez-la. L'équipe CityPick's la vérifie avant de la publier. Vous seul voyez vos propositions.</p>`;
+  if(!isIn()) return head + `<div style="margin-top:32px">${needAccount("proposer un spot")}</div></main>`;
+  return head + `<form class="form" id="propForm" novalidate>
+    <div class="field"><label for="pName">Nom du spot</label><input id="pName" maxlength="80"></div>
+    <div class="field"><label for="pAddr">Adresse</label><input id="pAddr" maxlength="120" placeholder="Numéro, rue, code postal"></div>
+    <div class="two">
+      <div class="field"><label for="pCity">Ville</label><select id="pCity">${Object.entries(CITIES).map(([k,c])=>`<option value="${k}">${c.name}</option>`).join("")}</select></div>
+      <div class="field"><label for="pHood">Quartier</label><input id="pHood" maxlength="60"></div>
+      <div class="field"><label for="pCat">Catégorie</label><select id="pCat">${CATS.map(x=>`<option>${x}</option>`).join("")}</select></div>
+      <div class="field"><label for="pPrice">Tag de prix</label><select id="pPrice">${Object.keys(PRICE).map(p=>`<option value="${p}">${PRICE[p].label} · ${PRICE[p].range}</option>`).join("")}</select></div>
+    </div>
+    <div class="field"><label for="pDesc">Pourquoi y aller ?</label><textarea id="pDesc" maxlength="300"></textarea></div>
+    <p class="err" id="pErr" hidden></p>
+    <button type="submit" style="justify-self:start">Envoyer la proposition</button>
+  </form>
+  <h2 style="margin-top:64px">Mes propositions.</h2>
+  <div id="myProps"></div></main>`;
+}
+function renderMyProps(){
+  const el = document.getElementById("myProps"); if(!el) return;
+  el.innerHTML = S.myProps.length ? `<div class="list">${S.myProps.map(p=>propItem(p,false)).join("")}</div>` : `<div class="empty" style="margin-top:16px">Vous n'avez encore rien proposé.</div>`;
+}
+function modView(){
+  if(!S.isAdmin) return `<main class="wrap"><div class="empty">Cette page est réservée à l'équipe CityPick's.</div></main>`;
+  const pend = S.allProps.filter(p=>p.status==="pending"), done = S.allProps.filter(p=>p.status!=="pending");
+  return `<main class="wrap"><h1>Modération.</h1><p class="lede">Les propositions de tous les voyageurs. Seule l'équipe les voit toutes.</p>
+  <h2 style="margin-top:48px;font-size:37px">À traiter (${pend.length})</h2>
+  ${pend.length?`<div class="list">${pend.map(p=>propItem(p,true)).join("")}</div>`:`<div class="empty" style="margin-top:16px">Rien à traiter.</div>`}
+  ${done.length?`<h2 style="margin-top:48px;font-size:37px">Déjà traitées</h2><div class="list">${done.map(p=>propItem(p,true)).join("")}</div>`:""}</main>`;
+}
+
+/* ---------- compte ---------- */
+const cityOpts = sel => Object.entries(CITIES).map(([k,c])=>`<option value="${k}" ${k===sel?"selected":""}>${c.name}</option>`).join("");
+function accountView(){
+  const head = `<main class="wrap"><h1>Mon compte.</h1>`;
+  if(!LIVE) return head + `<p class="lede">Les comptes ne sont pas encore activés : le site tourne en mode démo. Ils s'activent dès que Supabase est branché dans config.js.</p></main>`;
+  if(S.recovery) return head + `<p class="lede">Choisissez votre nouveau mot de passe.</p>
+    <form class="form" id="newPassForm" novalidate>
+      <div class="field"><label for="npPass">Nouveau mot de passe</label><input id="npPass" type="password" minlength="8" autocomplete="new-password"></div>
+      <p class="err" id="npErr" hidden></p><button type="submit" style="justify-self:start">Enregistrer le mot de passe</button></form></main>`;
+  if(!S.user){
+    const t = S.authTab;
+    return head + `<p class="lede">Connectez-vous pour enregistrer vos favoris et proposer des adresses.</p>
+    <div class="tabs" role="tablist">
+      <button class="chip" role="tab" data-tab="login" aria-pressed="${t==="login"}">Connexion</button>
+      <button class="chip" role="tab" data-tab="signup" aria-pressed="${t==="signup"}">Inscription</button>
+    </div>
+    ${t==="login" ? `<form class="form" id="loginForm" novalidate>
+      <div class="field"><label for="lEmail">E-mail</label><input id="lEmail" type="email" autocomplete="email"></div>
+      <div class="field"><label for="lPass">Mot de passe</label><input id="lPass" type="password" autocomplete="current-password"></div>
+      <p class="err" id="lErr" hidden></p><p class="ok" id="lOk" hidden></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="submit">Se connecter</button><button type="button" class="ghost" id="forgot">Mot de passe oublié</button></div>
+    </form>` : `<form class="form" id="signupForm" novalidate>
+      <div class="two">
+        <div class="field"><label for="sPseudo">Pseudo</label><input id="sPseudo" maxlength="30" autocomplete="nickname"></div>
+        <div class="field"><label for="sCity">Ville de départ préférée</label><select id="sCity">${cityOpts("paris")}</select></div>
+      </div>
+      <div class="field"><label for="sEmail">E-mail</label><input id="sEmail" type="email" autocomplete="email"></div>
+      <div class="field"><label for="sPass">Mot de passe (8 caractères minimum)</label><input id="sPass" type="password" minlength="8" autocomplete="new-password"></div>
+      <label style="display:flex;gap:10px;align-items:flex-start;font-size:16px"><input type="checkbox" id="sConsent" style="margin-top:5px"> <span>J'accepte que CityPick's enregistre mon e-mail, mon pseudo, mes favoris et mes propositions pour faire fonctionner le service. Je peux supprimer mon compte et ces données à tout moment.</span></label>
+      <p class="err" id="sErr" hidden></p><p class="ok" id="sOk" hidden></p>
+      <button type="submit" style="justify-self:start">Créer mon compte</button>
+    </form>`}</main>`;
+  }
+  if(!S.profile) return head + `<div class="empty" style="margin-top:32px">Chargement de votre profil…</div></main>`;
+  const since = S.profile.created_at ? new Date(S.profile.created_at).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}) : "";
+  return head + `<p class="lede">Connecté en tant que <strong style="color:var(--ink)">${esc(S.profile.pseudo)}</strong> (${esc(S.user.email)})${since?`, membre depuis le ${since}`:""}.</p>
+    <form class="form" id="profileForm" novalidate>
+      <div class="two">
+        <div class="field"><label for="ePseudo">Pseudo</label><input id="ePseudo" maxlength="30" value="${esc(S.profile.pseudo)}"></div>
+        <div class="field"><label for="eCity">Ville de départ préférée</label><select id="eCity">${cityOpts(S.profile.home_city)}</select></div>
+      </div>
+      <p class="err" id="eErr" hidden></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="submit">Enregistrer</button><button type="button" class="ghost" data-logout>Se déconnecter</button></div>
+    </form>
+    <div style="margin-top:64px;border-top:1px solid var(--pebble);padding-top:24px;display:grid;gap:12px;max-width:720px">
+      <h2 style="font-size:30px">Supprimer mon compte.</h2>
+      <p class="muted">Supprime votre compte, votre e-mail, vos ${S.favs.size} favori${S.favs.size>1?"s":""} et vos ${S.myProps.length} proposition${S.myProps.length>1?"s":""}. Les spots déjà publiés restent dans le catalogue.</p>
+      <div id="delZone"><button type="button" class="ghost" data-del-ask>Supprimer mon compte</button></div>
+    </div></main>`;
+}
+function aboutView(){
+  return `<main class="wrap"><div class="prose"><h1>À propos.</h1>
+  <p class="lede" style="margin:0">CityPick's réunit les bonnes adresses d'Europe au même endroit, avec un repère simple : le prix.</p>
+  <p>On prépare un city-break en piochant des idées sur TikTok, Instagram, Google Maps et des blogs, sans savoir si l'adresse rentre dans le budget. CityPick's classe chaque spot par ville, par catégorie et par tag de prix, et chaque adresse s'ouvre directement dans Google Maps.</p>
+  <h2 style="font-size:37px;margin-top:24px">L'assistant IA.</h2>
+  <p>L'assistant comprend des questions en langage naturel (« un resto pas cher à Rome ») et répond avec des adresses du catalogue. Il utilise le modèle Gemini de Google, interrogé depuis notre serveur : la clé d'accès n'est jamais visible dans le navigateur. Il ne recommande que des adresses du catalogue et peut se tromper : vérifiez avant d'y aller.</p>
+  <h2 style="font-size:37px;margin-top:24px">Vos données.</h2>
+  <p>Avec un compte, CityPick's enregistre votre e-mail, votre pseudo, votre ville préférée, vos favoris et vos propositions, uniquement pour faire fonctionner le service. Vos favoris restent privés ; vos propositions ne sont lues que par l'équipe qui les modère. Vous pouvez supprimer votre compte et toutes ces données depuis Mon compte. Les questions posées à l'assistant ne sont pas enregistrées par CityPick's.</p>
+  <h2 style="font-size:37px;margin-top:24px">Les photos.</h2>
+  <p>Les photos viennent de Wikimedia Commons, sous licence libre. L'auteur et la licence sont indiqués sur chaque fiche. Les adresses sans photo libre affichent leurs initiales.</p></div></main>`;
+}
+
+/* ================= routage ================= */
+function renderWho(){
+  const el = document.getElementById("who");
+  document.getElementById("favCount").textContent = canFav() ? S.favs.size : 0;
+  document.getElementById("modLink").hidden = !S.isAdmin;
+  if(!LIVE){ el.innerHTML = `<span class="demo-flag" title="Supabase n'est pas encore branché">Mode démo</span>`; return; }
+  if(isIn()){ el.innerHTML = `<span></span>`; el.querySelector("span").textContent = S.profile.pseudo; return; }
+  el.innerHTML = S.user ? "" : `<a class="btn small" href="#compte">Se connecter</a>`;
+}
+function route(keepScroll){
+  const h = route0(), app = document.getElementById("app");
+  let nav = "accueil";
+  if(h==="favoris"){ app.innerHTML = favView(); nav="favoris"; }
+  else if(h==="assistant"){ app.innerHTML = assistantView(); nav="assistant"; const el=document.getElementById("msgs"); if(el) el.scrollTop = el.scrollHeight; }
+  else if(h==="proposer"){ app.innerHTML = proposeView(); renderMyProps(); nav="proposer"; }
+  else if(h==="moderation"){ app.innerHTML = modView(); nav="moderation"; }
+  else if(h==="a-propos"){ app.innerHTML = aboutView(); nav="a-propos"; }
+  else if(h==="compte"){ app.innerHTML = accountView(); nav="compte"; }
+  else if(h.startsWith("spot-")){ app.innerHTML = spotView(h.slice(5)); nav=""; }
+  else if(CITIES[h]){ app.innerHTML = cityView(h); renderResults(h); }
+  else { app.innerHTML = home(); }
+  document.querySelectorAll("[data-nav]").forEach(a=>{ if(a.dataset.nav===nav) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  renderWho();
+  if(!keepScroll) window.scrollTo(0,0);
+}
+/* rafraîchit sans effacer un formulaire en cours de saisie */
+function refresh(){
+  const h = route0();
+  renderWho();
+  if(CITIES[h]) return renderResults(h);
+  if(h==="proposer" && document.getElementById("propForm")) return renderMyProps();
+  if(h==="assistant") return;
+  if(h==="compte" && document.querySelector("#app form")) return;
+  route(true);
+}
+
+/* ================= données ================= */
+async function loadSpots(){
+  try{
+    if(LIVE){
+      const { data, error } = await sb.from("spots").select("*").order("id");
+      if(error) throw error;
+      S.spots = data;
+    } else {
+      const r = await fetch("data/spots.json"); if(!r.ok) throw new Error(r.status);
+      S.spots = await r.json();
+    }
+    S.error = false;
+  }catch(e){ console.error(e); S.error = true; }
+  S.loading = false; refresh();
+}
+async function loadUserData(){
+  if(!LIVE) return;
+  if(!S.user){ S.profile=null; S.isAdmin=false; S.favs=new Set(); S.myProps=[]; S.allProps=[]; refresh(); return; }
+  const uid = S.user.id;
+  const [prof, adm, fav, props] = await Promise.all([
+    sb.from("profiles").select("*").eq("id", uid).maybeSingle(),
+    sb.from("admins").select("user_id").eq("user_id", uid).maybeSingle(),
+    sb.from("favorites").select("spot_id"),
+    sb.from("proposals").select("*").order("created_at",{ascending:false})
+  ]);
+  S.profile = prof.data || null;
+  S.isAdmin = !!adm.data;
+  S.favs = new Set((fav.data||[]).map(r=>r.spot_id));
+  const allProps = props.data || [];
+  S.myProps = allProps.filter(p=>p.user_id===uid);
+  S.allProps = S.isAdmin ? allProps : [];
+  if(S.isAdmin && S.allProps.length){
+    const ids = [...new Set(S.allProps.map(p=>p.user_id))];
+    const { data } = await sb.from("profiles").select("id,pseudo").in("id", ids);
+    (data||[]).forEach(p=>S.profiles[p.id]=p.pseudo);
+  }
+  refresh();
+}
+
+/* ================= actions ================= */
+async function toggleFav(id){
+  if(!canFav()) return;
+  const on = !S.favs.has(id);
+  on ? S.favs.add(id) : S.favs.delete(id);
+  refresh();
+  toast(on?"Ajouté à vos favoris":"Retiré de vos favoris");
+  if(!LIVE){ demoFavsSave(); return; }
+  const q = on ? sb.from("favorites").insert({user_id:S.user.id, spot_id:id}) : sb.from("favorites").delete().eq("user_id",S.user.id).eq("spot_id",id);
+  const { error } = await q;
+  if(error){ on ? S.favs.delete(id) : S.favs.add(id); refresh(); toast("Impossible d'enregistrer le favori. Réessayez."); }
+}
+async function moderate(pid, approve){
+  const p = S.allProps.find(x=>x.id===pid); if(!p || p.status!=="pending") return;
+  if(approve){
+    const { error } = await sb.from("spots").insert({id:"u-"+pid.slice(0,8), city:p.city, name:p.name, cat:p.cat, price:p.price, hood:p.hood||"", address:p.address, desc:p.desc, proposed_by_name: S.profiles[p.user_id] || null});
+    if(error){ toast("La publication n'a pas abouti. Réessayez."); return; }
+  }
+  const { error } = await sb.from("proposals").update({status: approve?"approved":"rejected"}).eq("id", pid);
+  if(error){ toast("L'action n'a pas abouti. Réessayez."); return; }
+  toast(approve?"Spot publié dans le catalogue":"Proposition refusée");
+  await Promise.all([loadSpots(), loadUserData()]);
+}
+const authMsg = e => {
+  const m = (e && e.message || "").toLowerCase();
+  if(m.includes("invalid login")) return "E-mail ou mot de passe incorrect.";
+  if(m.includes("email not confirmed")) return "Confirmez d'abord votre e-mail avec le lien reçu.";
+  if(m.includes("already registered")) return "Un compte existe déjà avec cet e-mail. Connectez-vous.";
+  if(m.includes("password")) return "Mot de passe trop faible : 8 caractères minimum.";
+  if(m.includes("rate limit")) return "Trop de tentatives. Réessayez dans quelques minutes.";
+  return "L'opération n'a pas abouti. Réessayez.";
+};
+const showMsg = (id, txt) => { const el=document.getElementById(id); if(el){ el.hidden=!txt; el.textContent=txt||""; } };
+
+/* ================= événements ================= */
+document.addEventListener("click", e=>{
+  const t = e.target;
+  const f = t.closest("[data-fav]"); if(f){ toggleFav(f.dataset.fav); return; }
+  const ask = t.closest("[data-ask]"); if(ask){ askAssistant(ask.dataset.ask); return; }
+  if(t.id==="chatReset"){ S.chat=[]; route(true); return; }
+  const tab = t.closest("[data-tab]"); if(tab){ S.authTab = tab.dataset.tab; route(true); return; }
+  const a = t.closest("[data-approve]"), r = t.closest("[data-reject]");
+  if(a||r){ (a||r).disabled=true; moderate((a||r).dataset[a?"approve":"reject"], !!a); return; }
+  if(t.closest("[data-logout]")){ sb.auth.signOut().then(()=>{ toast("Vous êtes déconnecté"); location.hash="accueil"; }); return; }
+  if(t.closest("[data-del-ask]")){ document.getElementById("delZone").innerHTML = `<p style="margin-bottom:12px">Cette suppression est définitive. Confirmer ?</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button data-del-yes>Oui, supprimer</button><button class="ghost" data-del-no>Annuler</button></div>`; return; }
+  if(t.closest("[data-del-no]")){ route(true); return; }
+  if(t.closest("[data-del-yes]")){
+    t.closest("[data-del-yes]").disabled = true;
+    sb.rpc("delete_my_account").then(async ({error})=>{
+      if(error){ toast("La suppression n'a pas abouti. Réessayez."); route(true); return; }
+      await sb.auth.signOut(); toast("Compte supprimé"); location.hash="accueil";
+    });
+    return;
+  }
+  if(t.id==="forgot"){
+    const email = document.getElementById("lEmail").value.trim();
+    if(!email){ showMsg("lErr","Indiquez votre e-mail ci-dessus, puis cliquez à nouveau."); return; }
+    sb.auth.resetPasswordForEmail(email, {redirectTo: location.origin + location.pathname}).then(({error})=>{
+      showMsg("lErr", error ? authMsg(error) : ""); showMsg("lOk", error ? "" : "Si un compte existe, un lien de réinitialisation vient d'être envoyé.");
+    });
+    return;
+  }
+  const key = route0();
+  const cat = t.closest("[data-cat]"), pr = t.closest("[data-price]");
+  if(cat||pr){ const set = cat?S.f.cats:S.f.prices, v = cat?cat.dataset.cat:pr.dataset.price;
+    set.has(v)?set.delete(v):set.add(v); (cat||pr).setAttribute("aria-pressed", set.has(v)); renderResults(key); return; }
+  if(t.id==="reset"){ S.f.cats.clear(); S.f.prices.clear(); S.f.q=""; route(true); }
+});
+document.addEventListener("input", e=>{
+  if(e.target.id==="q"){ S.f.q=e.target.value; renderResults(route0()); }
+  if(e.target.id==="chatInput"){ S.chatDraft = e.target.value; }
+});
+document.addEventListener("change", e=>{ if(e.target.id==="sort"){ S.f.sort=e.target.value; renderResults(route0()); } });
+document.addEventListener("submit", async e=>{
+  const id = e.target.id; e.preventDefault();
+  const val = k => (document.getElementById(k)?.value || "").trim();
+  const btn = e.target.querySelector("button[type=submit]");
+  if(id==="citySearch"){
+    const v = val("cityInput").toLowerCase();
+    const k = Object.keys(CITIES).find(k=>k===v || CITIES[k].name.toLowerCase()===v);
+    const msg = document.getElementById("searchMsg");
+    if(k){ location.hash = k; } else { msg.hidden=false; msg.textContent = v ? `Pas encore de spots pour « ${v} ». Villes disponibles : ${Object.values(CITIES).map(c=>c.name).join(", ")}.` : "Tapez le nom d'une ville."; }
+    return;
+  }
+  if(id==="chatForm"){ askAssistant(val("chatInput")); return; }
+  if(id==="loginForm"){
+    showMsg("lErr",""); showMsg("lOk","");
+    if(!val("lEmail") || !val("lPass")){ showMsg("lErr","Indiquez votre e-mail et votre mot de passe."); return; }
+    btn.disabled = true;
+    const { error } = await sb.auth.signInWithPassword({email:val("lEmail"), password:document.getElementById("lPass").value});
+    btn.disabled = false;
+    if(error){ showMsg("lErr", authMsg(error)); return; }
+    toast("Connecté"); location.hash = "accueil";
+    return;
+  }
+  if(id==="signupForm"){
+    showMsg("sErr",""); showMsg("sOk","");
+    const pseudo = val("sPseudo"), email = val("sEmail"), pass = document.getElementById("sPass").value;
+    if(pseudo.length<2) return showMsg("sErr","Choisissez un pseudo d'au moins 2 caractères.");
+    if(!/^\S+@\S+\.\S+$/.test(email)) return showMsg("sErr","Indiquez une adresse e-mail valide.");
+    if(pass.length<8) return showMsg("sErr","Le mot de passe doit faire au moins 8 caractères.");
+    if(!document.getElementById("sConsent").checked) return showMsg("sErr","Cochez la case pour accepter l'enregistrement de vos données.");
+    btn.disabled = true;
+    const { data, error } = await sb.auth.signUp({email, password:pass, options:{data:{pseudo, home_city:val("sCity")}, emailRedirectTo: location.origin + location.pathname}});
+    btn.disabled = false;
+    if(error) return showMsg("sErr", authMsg(error));
+    if(data.session){ toast("Compte créé. Bienvenue " + pseudo + " !"); location.hash = val("sCity") || "accueil"; }
+    else showMsg("sOk","Compte créé. Ouvrez l'e-mail de confirmation que vous venez de recevoir, puis connectez-vous.");
+    return;
+  }
+  if(id==="profileForm"){
+    const pseudo = val("ePseudo");
+    if(pseudo.length<2) return showMsg("eErr","Choisissez un pseudo d'au moins 2 caractères.");
+    btn.disabled = true;
+    const { error } = await sb.from("profiles").update({pseudo, home_city:val("eCity")}).eq("id", S.user.id);
+    btn.disabled = false;
+    if(error) return showMsg("eErr","L'enregistrement n'a pas abouti. Réessayez.");
+    S.profile = {...S.profile, pseudo, home_city:val("eCity")}; toast("Profil enregistré"); route(true);
+    return;
+  }
+  if(id==="newPassForm"){
+    const pass = document.getElementById("npPass").value;
+    if(pass.length<8) return showMsg("npErr","Le mot de passe doit faire au moins 8 caractères.");
+    btn.disabled = true;
+    const { error } = await sb.auth.updateUser({password:pass});
+    btn.disabled = false;
+    if(error) return showMsg("npErr", authMsg(error));
+    S.recovery = false; toast("Mot de passe modifié"); route(true);
+    return;
+  }
+  if(id==="propForm"){
+    const p = {name:val("pName"), address:val("pAddr"), city:val("pCity"), hood:val("pHood"), cat:val("pCat"), price:val("pPrice"), desc:val("pDesc")};
+    if(!p.name || !p.address || !p.desc) return showMsg("pErr","Indiquez au moins le nom, l'adresse et pourquoi y aller.");
+    if(S.myProps.some(x=>x.status==="pending" && x.name.toLowerCase()===p.name.toLowerCase() && x.city===p.city)) return showMsg("pErr","Vous avez déjà proposé ce spot. Il est en attente de vérification.");
+    showMsg("pErr",""); btn.disabled = true;
+    const { error } = await sb.from("proposals").insert(p);
+    btn.disabled = false;
+    if(error) return showMsg("pErr","L'envoi n'a pas abouti. Vérifiez votre connexion et réessayez.");
+    e.target.reset(); toast("Proposition envoyée"); loadUserData();
+  }
+});
+let lastCity = CITIES[route0()] ? route0() : null;
+window.addEventListener("hashchange", ()=>{ const h=route0(); if(CITIES[h] && h!==lastCity){ S.f.cats.clear(); S.f.prices.clear(); S.f.q=""; lastCity=h; } route(); });
+
+/* ================= démarrage ================= */
+if(!LIVE) S.favs = demoFavsLoad();
+route();
+loadSpots();
+if(LIVE){
+  sb.auth.onAuthStateChange((event, session)=>{
+    if(event==="PASSWORD_RECOVERY"){ S.recovery = true; location.hash = "compte"; }
+    const changed = (session?.user?.id || null) !== (S.user?.id || null);
+    S.user = session?.user || null;
+    if(changed || event==="SIGNED_IN") setTimeout(loadUserData, 0);
+    else renderWho();
+  });
+}
+</script>
+</body>
+</html>
