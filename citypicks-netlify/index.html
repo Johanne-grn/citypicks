@@ -442,7 +442,8 @@ const S = {
   ex:{city:"", cats:new Set(), prices:new Set(), q:"", shown:24},
   authTab:"login", recovery:false,
   chat:[], chatBusy:false, aiOpen:false, aiTab:"chat",
-  plan:{city:"paris", days:2, budget:"p2", interests:new Set(), note:"", busy:false, result:null, error:""}
+  plan:{city:"paris", days:2, budget:"p2", interests:new Set(), note:"", busy:false, result:null, error:""},
+  team:{enabled:false, email:"", busy:false, msg:"", ok:false}
 };
 const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const priceTag = p => PRICE[p] ? `<span class="tag ${PRICE[p].cls}">${PRICE[p].label}</span>` : "";
@@ -732,9 +733,39 @@ function planView(){
       <div class="field"><label for="plNote">Une précision ? (facultatif)</label><textarea id="plNote" maxlength="200" placeholder="Ex. : on adore les vues panoramiques, pas de musées le dimanche…">${esc(P.note)}</textarea></div>
       <button type="submit" ${P.busy?"disabled":""}>${P.busy?"L'agent prépare votre séjour…":"Créer mon itinéraire"}</button>
       <p class="muted" style="font-size:13px;line-height:1.45">Itinéraire généré par IA (Google Gemini) à partir du catalogue CityPick's. Vérifiez horaires et prix, et réservez vous-même si besoin.</p>
+      ${S.team.enabled?teamBlock():""}
     </form>
     <div id="planOut" aria-live="polite"></div>
   </div></main>`;
+}
+/* option : faire préparer le séjour par l'équipe d'agents n8n, relu par un humain, puis envoyé par e-mail */
+function teamBlock(){
+  const T = S.team;
+  return `<div style="border-top:1px solid var(--pebble);padding-top:18px;display:grid;gap:12px">
+        <span class="eyebrow">Option · relu par notre équipe</span>
+        <p style="font-size:15px;line-height:1.5">Recevez ce séjour par e-mail : nos agents le préparent, puis un membre de l'équipe CityPick's le relit et le valide avant l'envoi.</p>
+        <div class="field"><label for="plMail">Votre e-mail</label><input id="plMail" type="email" autocomplete="email" maxlength="120" placeholder="vous@exemple.fr" value="${esc(T.email)}"></div>
+        <label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45"><input type="checkbox" id="plMailOk" style="margin-top:4px"> <span>J'accepte que mon e-mail serve uniquement à m'envoyer ce programme (voir la <a href="#confidentialite">confidentialité</a>).</span></label>
+        <button type="button" class="ghost" data-plan-mail ${T.busy?"disabled":""}>${T.busy?"Envoi à l'équipe…":"Recevoir mon séjour validé par e-mail"}</button>
+        <p id="plMailMsg" role="status" style="font-size:14px;${T.ok?"color:var(--ink);font-weight:600":"color:var(--clay-ink)"}">${esc(T.msg)}</p>
+      </div>`;
+}
+async function sendToTeam(){
+  const T = S.team, P = S.plan;
+  if(T.busy) return;
+  const val = k => (document.getElementById(k)?.value || "").trim();
+  P.city = val("plCity") || P.city; P.days = parseInt(val("plDays"),10) || P.days; P.budget = val("plBudget") || P.budget; P.note = val("plNote");
+  T.email = val("plMail");
+  const say = (msg, ok=false) => { T.msg = msg; T.ok = ok; const el = document.getElementById("plMailMsg"); if(el){ el.textContent = msg; el.style.color = ok?"var(--ink)":"var(--clay-ink)"; el.style.fontWeight = ok?"600":"400"; } };
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(T.email)) return say("Indiquez une adresse e-mail valide.");
+  if(!document.getElementById("plMailOk")?.checked) return say("Cochez la case pour accepter l'envoi par e-mail.");
+  T.busy = true; say(""); route(true);
+  let r, data;
+  try{ r = await fetch("/api/sejour", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({city:P.city, days:P.days, budget:P.budget, interests:[...P.interests], note:P.note, email:T.email, consent:true})}); data = await r.json(); }catch(e){ data = {error:"Envoi impossible. Vérifiez votre connexion et réessayez."}; }
+  T.busy = false;
+  if(r && r.ok && data.ok){ T.msg = `C'est parti ! Nos agents préparent votre séjour à ${CITIES[P.city].name}. Vous le recevrez par e-mail à ${T.email} dès qu'un membre de l'équipe l'aura validé.`; T.ok = true; }
+  else { T.msg = (data && data.error) || "Envoi impossible. Réessayez."; T.ok = false; }
+  if(route0()==="planificateur") route(true);
 }
 function dayMapsUrl(spots){
   const q = s => [s.name, s.address, CITIES[s.city]?.name].filter(Boolean).join(", ");
@@ -967,6 +998,7 @@ function privacyView(){
   <ul>
     <li><b>Sans compte</b> : aucune donnée personnelle n'est collectée. Votre choix de thème (clair ou sombre) est gardé dans votre navigateur.</li>
     <li><b>Avec un compte</b> : adresse e-mail, mot de passe (chiffré, nous n'y avons pas accès), pseudo, ville préférée, date de votre consentement, vos favoris et vos propositions d'adresses.</li>
+    <li><b>Séjour relu par notre équipe</b> (page Planificateur, facultatif) : votre e-mail et votre demande (ville, durée, budget, envies) sont transmis à notre outil d'automatisation n8n et aux agents IA (Google Gemini) qui préparent le programme, puis à un membre de l'équipe qui le relit. L'e-mail sert uniquement à vous envoyer ce programme ; la demande n'est pas conservée par le site.</li>
     <li><b>Assistant IA</b> : vos questions sont transmises à Google (Gemini) pour générer la réponse. CityPick's ne les enregistre pas. N'y indiquez pas d'informations personnelles.</li>
   </ul>
   <h2>Pourquoi ?</h2>
@@ -1139,6 +1171,7 @@ document.addEventListener("click", e=>{
   const pc = t.closest("[data-plan-city]"); if(pc){ S.plan.city = pc.dataset.planCity; S.plan.result = null; S.plan.error = ""; location.hash = "planificateur"; return; }
   const it = t.closest("[data-interest]"); if(it){ const v = it.dataset.interest; S.plan.interests.has(v) ? S.plan.interests.delete(v) : S.plan.interests.add(v); it.setAttribute("aria-pressed", S.plan.interests.has(v)); return; }
   if(t.closest("[data-plan-go]")){ generatePlan(); return; }
+  if(t.closest("[data-plan-mail]")){ sendToTeam(); return; }
   if(t.id==="copyPlan"){
     const txt = planAsText();
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast("Programme copié"), ()=>toast("Copie impossible : sélectionnez le texte à la main."));
@@ -1189,7 +1222,7 @@ document.addEventListener("change", e=>{
   if(e.target.id==="plDays") S.plan.days = parseInt(e.target.value,10);
   if(e.target.id==="plBudget") S.plan.budget = e.target.value;
 });
-document.addEventListener("input", e=>{ if(e.target.id==="plNote") S.plan.note = e.target.value; });
+document.addEventListener("input", e=>{ if(e.target.id==="plNote") S.plan.note = e.target.value; if(e.target.id==="plMail") S.team.email = e.target.value; });
 document.addEventListener("submit", async e=>{
   const id = e.target.id; e.preventDefault();
   const val = k => (document.getElementById(k)?.value || "").trim();
@@ -1275,6 +1308,8 @@ document.getElementById("footCities").innerHTML = Object.entries(CITIES).map(([k
 if(!LIVE) S.favs = demoFavsLoad();
 route();
 loadSpots();
+/* l'option « relu par notre équipe » n'apparaît que si le webhook n8n est configuré sur Netlify */
+if(!FORCE_DEMO) fetch("/api/sejour").then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.enabled){ S.team.enabled = true; if(route0()==="planificateur") route(true); } }).catch(()=>{});
 if(LIVE){
   sb.auth.onAuthStateChange((event, session)=>{
     if(event==="PASSWORD_RECOVERY"){ S.recovery = true; location.hash = "compte"; }

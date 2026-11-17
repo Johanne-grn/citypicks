@@ -88,7 +88,9 @@ export default async (req) => {
 
   let body;
   try { body = await req.json(); } catch { return json({ error: "Requête invalide." }, 400); }
-  const history = (Array.isArray(body?.messages) ? body.messages : [])
+  // "messages" (site) ou une simple "question" (outil de l'orchestrateur n8n)
+  const msgs = Array.isArray(body?.messages) ? body.messages : (typeof body?.question === "string" ? [{ role: "user", text: body.question }] : []);
+  const history = msgs
     .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.text === "string" && m.text.trim())
     .slice(-MAX_TURNS)
     .map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.text.trim().slice(0, MAX_CHARS) }] }));

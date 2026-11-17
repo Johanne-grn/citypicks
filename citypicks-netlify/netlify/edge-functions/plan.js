@@ -49,12 +49,14 @@ export default async (req) => {
   if (!CITIES[city]) return json({ error: "Choisissez une ville parmi les 12 villes CityPick's." }, 400);
   const days = Math.min(5, Math.max(1, parseInt(b?.days, 10) || 2));
   const budget = RANK[b?.budget] !== undefined ? b.budget : "p2";
-  const interests = (Array.isArray(b?.interests) ? b.interests : []).filter(c => CATS.includes(c));
+  // listes : tableau (site) ou texte séparé par des virgules (outil n8n)
+  const list = v => Array.isArray(v) ? v : String(v ?? "").split(",").map(x => x.trim()).filter(Boolean);
+  const interests = list(b?.interests).filter(c => CATS.includes(c));
   const note = String(b?.note || "").replace(/\s+/g, " ").trim().slice(0, 200);
   // Le séjour est construit un jour à la fois (une journée tient dans la limite de temps de Netlify)
   const dayNum = Math.min(days, Math.max(1, parseInt(b?.day, 10) || 1));
-  const exclude = new Set((Array.isArray(b?.exclude) ? b.exclude : []).map(String).slice(0, 40));
-  const prevThemes = (Array.isArray(b?.themes) ? b.themes : []).map(t => String(t).slice(0, 80)).slice(0, 5);
+  const exclude = new Set(list(b?.exclude).map(String).slice(0, 40));
+  const prevThemes = list(b?.themes).map(t => String(t).slice(0, 80)).slice(0, 5);
 
   // ---- 2. Préparer le catalogue de la ville, dans le budget ----
   let spots;
@@ -152,7 +154,11 @@ Précision du visiteur : ${note || "aucune"}.`;
   const usedSpots = new Set(), usedMoments = new Set();
   const slots = (Array.isArray(out.slots) ? out.slots : [])
     .filter(s => MOMENTS.includes(s?.moment) && known.has(String(s.spot)) && !usedSpots.has(String(s.spot)) && !usedMoments.has(s.moment) && usedSpots.add(String(s.spot)) && usedMoments.add(s.moment))
-    .map(s => ({ moment: s.moment, spot: String(s.spot), why: String(s.why || "").slice(0, 240) }))
+    .map(s => { const x = allowed.find(a => a.id === String(s.spot));
+      // nom, prix, adresse et lien Maps : utiles aux autres agents (orchestrateur n8n)
+      return { moment: s.moment, spot: x.id, name: x.name, price: PRICES[x.price], address: x.address,
+        maps: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(`${x.name}, ${x.address}`),
+        why: String(s.why || "").slice(0, 240) }; })
     .sort((a, b) => MOMENTS.indexOf(a.moment) - MOMENTS.indexOf(b.moment));
   if (!slots.length) return json({ error: "Le planificateur n'a pas trouvé de programme valable. Réessayez avec d'autres envies." }, 502);
 
