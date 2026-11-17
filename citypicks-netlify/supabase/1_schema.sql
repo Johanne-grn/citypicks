@@ -9,7 +9,7 @@
 -- Le catalogue des spots (public en lecture)
 create table if not exists public.spots (
   id                text primary key,
-  city              text not null check (city in ('paris','lisbonne','barcelone','rome','berlin','amsterdam')),
+  city              text not null check (city in ('paris','londres','madrid','barcelone','lisbonne','rome','berlin','amsterdam','prague','vienne','copenhague','budapest')),
   name              text not null,
   cat               text not null check (cat in ('Restaurant','Activité','Bar & nuit','Culture')),
   price             text not null check (price in ('free','p1','p2','p3')),
@@ -48,7 +48,7 @@ create table if not exists public.proposals (
   user_id     uuid not null default auth.uid() references auth.users(id) on delete cascade,
   name        text not null check (char_length(name) between 1 and 80),
   address     text not null check (char_length(address) between 1 and 120),
-  city        text not null check (city in ('paris','lisbonne','barcelone','rome','berlin','amsterdam')),
+  city        text not null check (city in ('paris','londres','madrid','barcelone','lisbonne','rome','berlin','amsterdam','prague','vienne','copenhague','budapest')),
   hood        text not null default '',
   cat         text not null check (cat in ('Restaurant','Activité','Bar & nuit','Culture')),
   price       text not null check (price in ('free','p1','p2','p3')),

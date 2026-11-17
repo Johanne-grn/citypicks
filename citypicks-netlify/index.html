@@ -4,61 +4,83 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CityPick's</title>
-<meta name="description" content="Les meilleures adresses d'Europe, triées par budget : restos, activités, bars et musées dans 6 villes, avec un assistant IA.">
+<meta name="description" content="Les meilleures adresses d'Europe, triées par budget : 360 restos, activités, bars et musées dans 12 villes, avec un assistant IA.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000d10'/%3E%3Ctext x='32' y='46' font-family='Arial' font-weight='700' font-size='40' text-anchor='middle' fill='%23bc7155'%3EC%3C/text%3E%3C/svg%3E">
+<script>
+/* thème : clair par défaut, sombre seulement si le visiteur l'a choisi */
+try { if (localStorage.getItem("cp-theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap">
 <style>
-/* Layout : éditorial. Hero ciel pâle + wordmark géant, bandes blanches et bandes nuit alternées, cartes à angles vifs, actions en pilules. Une seule carte argile par page. */
+/* Layout : éditorial. Hero ciel pâle + wordmark géant, bandes blanches et nuit alternées, cartes à angles vifs, actions en pilules. Une seule carte argile par page. */
 :root{
-  --canvas:#ffffff; --ink:#000d10; --ash:#6c6c74; --pebble:#d5d3d4; --soft:#f3f3f2;
+  --canvas:#ffffff; --ink:#000d10; --ash:#62626b; --pebble:#d5d3d4; --soft:#f4f4f2; --raise:#ffffff;
   --hull:#0f0f1c; --deck:#151623; --on-dark:#ffffff; --on-dark-muted:#a3a3ab;
-  --clay:#bc7155; --on-clay:#ffffff; --sky-top:#dbe7f0; --sky-bottom:#f6efe4;
+  --clay:#bc7155; --clay-ink:#9c5940; --on-clay:#ffffff; --sky-top:#dbe7f0; --sky-bottom:#f6efe4;
+  --shadow:0 18px 50px rgba(0,13,16,.18);
   --font:"Inter Tight","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
-  --pill:1000px; --max:1200px; --section:80px;
+  --pill:1000px; --max:1240px; --section:88px;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --canvas:#0b0c16; --ink:#f4f2ee; --ash:#a3a3ab; --pebble:#2a2b3a; --soft:#151623;
-  --hull:#151623; --deck:#1c1d2e; --on-dark:#f4f2ee; --on-dark-muted:#a3a3ab;
-  --sky-top:#1a2233; --sky-bottom:#262130; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --canvas:#0b0c16; --ink:#f4f2ee; --ash:#a3a3ab; --pebble:#2a2b3a; --soft:#151623;
+  --canvas:#0b0c16; --ink:#f4f2ee; --ash:#a3a3ab; --pebble:#2a2b3a; --soft:#151623; --raise:#151623;
   --hull:#151623; --deck:#1c1d2e; --on-dark:#f4f2ee; --on-dark-muted:#a3a3ab;
-  --sky-top:#1a2233; --sky-bottom:#262130; color-scheme:dark}
+  --clay-ink:#d98d70; --sky-top:#1a2233; --sky-bottom:#262130; --shadow:0 18px 50px rgba(0,0,0,.55);
+  color-scheme:dark;
+}
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.61}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.61;transition:background .25s,color .25s}
 img{max-width:100%}
 [hidden]{display:none!important}
 .wrap{max-width:var(--max);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-weight:700;margin:0;text-wrap:balance}
 h1{font-size:clamp(40px,6vw,63px);line-height:1;letter-spacing:-.02em}
 h2{font-size:clamp(30px,4vw,52px);line-height:1;letter-spacing:-.01em}
-h3{font-size:23px;line-height:1.1;letter-spacing:-.01em}
+h3{font-size:22px;line-height:1.15;letter-spacing:-.01em}
 p{margin:0}
 a{color:inherit}
 .muted{color:var(--ash)}
-.eyebrow{font-size:14px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ash)}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ash)}
 :focus-visible{outline:3px solid var(--clay);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:16px;top:-60px;z-index:50;background:var(--ink);color:var(--canvas);padding:10px 16px;border-radius:var(--pill)}
+.skip:focus{top:12px}
 
-header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--canvas) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--pebble);padding-top:env(safe-area-inset-top,0px)}
-.nav{display:flex;align-items:center;gap:20px;padding-block:14px;flex-wrap:wrap}
-.logo{font-weight:700;font-size:24px;letter-spacing:-.03em;text-decoration:none}
-.nav nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
-.nav nav a{text-decoration:none;font-size:16px;color:var(--ash);padding:8px 14px;border-radius:var(--pill)}
-.nav nav a:hover{color:var(--ink)}
-.nav nav a[aria-current="page"]{color:var(--canvas);background:var(--ink)}
+/* ---------- en-tête ---------- */
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--canvas) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--pebble);padding-top:env(safe-area-inset-top,0px)}
+.nav{display:flex;align-items:center;gap:14px;padding-block:12px}
+.logo{font-weight:700;font-size:24px;letter-spacing:-.03em;text-decoration:none;margin-right:auto}
+.links{display:flex;gap:2px;align-items:center}
+.links a,.links button.linklike{text-decoration:none;font-size:16px;font-weight:500;color:var(--ash);padding:8px 14px;border-radius:var(--pill);background:none;border:0;cursor:pointer;font-family:inherit;line-height:1.4}
+.links a:hover,.links button.linklike:hover{color:var(--ink);background:var(--soft)}
+.links a[aria-current="page"]{color:var(--canvas);background:var(--ink)}
 .count{display:inline-block;min-width:20px;margin-left:6px;padding:0 6px;border-radius:var(--pill);background:var(--clay);color:var(--on-clay);font-size:12px;text-align:center;line-height:20px}
-.who{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--ash)}
-.demo-flag{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:var(--pill);border:1px dashed var(--ash);color:var(--ash)}
+.tools{display:flex;gap:8px;align-items:center}
+.iconbtn{width:42px;height:42px;border-radius:50%;border:1px solid var(--pebble);background:var(--raise);color:var(--ink);display:inline-grid;place-items:center;cursor:pointer;padding:0}
+.iconbtn:hover{border-color:var(--ink)}
+.iconbtn svg{width:20px;height:20px}
+.who{font-size:15px;font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.burger{display:none}
+@media (max-width:980px){
+  .burger{display:inline-grid}
+  .links{position:fixed;inset:calc(64px + env(safe-area-inset-top,0px)) 0 auto 0;flex-direction:column;align-items:stretch;gap:0;background:var(--canvas);border-bottom:1px solid var(--pebble);padding:8px max(16px,env(safe-area-inset-left,0px)) 16px;box-shadow:var(--shadow);display:none}
+  .links.open{display:flex}
+  .links a,.links button.linklike{font-size:18px;padding:12px 14px;text-align:left}
+  .who{display:none}
+}
 
-.btn,button{font:inherit;font-size:17px;font-weight:700;line-height:1;border:1px solid var(--ink);border-radius:var(--pill);padding:15px 22px 16px;background:var(--ink);color:var(--canvas);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+/* ---------- boutons ---------- */
+.btn,button{font:inherit;font-size:17px;font-weight:700;line-height:1;border:1px solid var(--ink);border-radius:var(--pill);padding:15px 22px 16px;background:var(--ink);color:var(--canvas);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,opacity .15s}
+.btn:active,button:active{transform:scale(.98)}
 .btn.ghost,button.ghost{background:transparent;color:var(--ink)}
 .btn.small,button.small{font-size:15px;padding:10px 16px}
 button:disabled{opacity:.5;cursor:default}
 
+/* ---------- hero ---------- */
 .hero{background:linear-gradient(180deg,var(--sky-top),var(--sky-bottom));padding-block:56px 64px;overflow:hidden}
 .hero .wrap{display:grid;gap:32px}
 .wordmark{font-size:clamp(64px,15vw,187px);line-height:.8;letter-spacing:-.02em;font-weight:700}
@@ -66,116 +88,203 @@ button:disabled{opacity:.5;cursor:default}
 .hero-row h1{text-align:right}
 .search{display:flex;gap:8px;flex-wrap:wrap;max-width:560px}
 .search input{flex:1;min-width:0;font:inherit;font-size:17px;padding:14px 22px;border-radius:var(--pill);border:1px solid var(--ink);background:var(--canvas);color:var(--ink)}
-.search-msg{font-size:15px;margin-top:8px}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.quick a{font-size:14px;font-weight:600;text-decoration:none;padding:6px 12px;border-radius:var(--pill);border:1px solid color-mix(in srgb,var(--ink) 25%,transparent)}
+.quick a:hover{background:var(--ink);color:var(--canvas)}
+.stats{display:flex;gap:32px;flex-wrap:wrap}
+.stats b{display:block;font-size:37px;line-height:1;letter-spacing:-.02em}
+.stats span{font-size:14px;color:var(--ash)}
 
 section.band{padding-block:var(--section)}
 section.band.dark{background:var(--hull);color:var(--on-dark)}
 section.band.dark .muted{color:var(--on-dark-muted)}
+section.band.soft{background:var(--soft)}
 .head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:40px}
 
-.cities{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+/* ---------- villes ---------- */
+.cities{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
 .city{position:relative;display:block;text-decoration:none;color:#fff;aspect-ratio:4/5;max-width:100%;overflow:hidden;background:var(--deck)}
-.city img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
-.city::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,13,16,.75))}
+.city img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.city::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,13,16,.8))}
 .city span{position:absolute;left:22px;right:22px;bottom:20px;z-index:1;display:grid;gap:2px}
-.city b{font-size:37px;line-height:1;letter-spacing:-.01em}
-.city small{font-size:16px;opacity:.85}
-.city:hover img{transform:scale(1.04)}
+.city b{font-size:34px;line-height:1;letter-spacing:-.01em}
+.city small{font-size:15px;opacity:.88}
+.city:hover img{transform:scale(1.05)}
+
+/* ---------- envies ---------- */
+.moods{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.mood{display:grid;gap:6px;padding:22px;border:1px solid var(--pebble);text-decoration:none;background:var(--raise);transition:border-color .2s,transform .2s}
+.mood:hover{border-color:var(--ink);transform:translateY(-2px)}
+.mood b{font-size:21px}
+.mood span{font-size:15px;color:var(--ash)}
+.mood svg{width:28px;height:28px}
 
 .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 40px}
 .legend div{border-top:1px solid color-mix(in srgb,var(--on-dark) 25%,transparent);padding-top:16px;display:grid;gap:8px;padding-bottom:24px;justify-items:start}
-.tag{display:inline-flex;align-items:center;font-size:14px;font-weight:700;line-height:1;padding:6px 11px;border-radius:var(--pill);white-space:nowrap;border:1px solid var(--ink);background:var(--ink);color:var(--canvas)}
+
+/* ---------- tags ---------- */
+.tag{display:inline-flex;align-items:center;font-size:13px;font-weight:700;line-height:1;padding:6px 11px;border-radius:var(--pill);white-space:nowrap;border:1px solid var(--ink);background:var(--ink);color:var(--canvas)}
 .tag.free{background:transparent;color:var(--ink)}
 .tag.cat{background:transparent;color:var(--ash);border-color:var(--pebble);font-weight:500}
 .dark .tag{border-color:var(--on-dark);background:var(--on-dark);color:var(--hull)}
 .dark .tag.free{background:transparent;color:var(--on-dark)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
 
-.feature{background:var(--clay);color:var(--on-clay);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);margin-bottom:48px}
+/* ---------- carte argile ---------- */
+.feature{background:var(--clay);color:var(--on-clay);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);margin-bottom:56px}
 .feature .txt{padding:53px 59px;display:grid;gap:18px;align-content:center}
 .feature .txt .eyebrow{color:var(--on-clay);opacity:.85}
 .feature .tag{border-color:var(--on-clay);background:var(--on-clay);color:var(--clay)}
 .feature .tag.free{background:transparent;color:var(--on-clay)}
 .feature .tag.cat{background:transparent;border-color:color-mix(in srgb,var(--on-clay) 50%,transparent);color:var(--on-clay)}
 .feature .btn{background:var(--on-clay);color:#000d10;border-color:var(--on-clay)}
-.feature .fav{color:var(--on-clay);border-color:color-mix(in srgb,var(--on-clay) 60%,transparent)}
-.feature .fav[aria-pressed="true"]{background:var(--on-clay);color:var(--clay)}
+.feature .btn.ghost{background:transparent;color:var(--on-clay)}
 .feature .addr{color:var(--on-clay)}
-.feature .pic{min-height:320px;background:var(--deck)}
+.feature .pic{min-height:340px;background:var(--deck)}
 .feature .pic img{width:100%;height:100%;object-fit:cover;display:block}
 
-.filters{display:flex;flex-wrap:wrap;gap:20px 32px;align-items:end;padding-block:24px;border-top:1px solid var(--pebble);border-bottom:1px solid var(--pebble);margin:32px 0}
+/* ---------- filtres ---------- */
+.filters{position:sticky;top:calc(66px + env(safe-area-inset-top,0px));z-index:5;display:flex;flex-wrap:wrap;gap:16px 28px;align-items:end;padding-block:18px;border-bottom:1px solid var(--pebble);margin:24px 0 32px;background:color-mix(in srgb,var(--canvas) 94%,transparent);backdrop-filter:blur(8px)}
 .filters fieldset{border:0;padding:0;margin:0;display:flex;gap:6px;flex-wrap:wrap}
-.filters legend,.field label{font-size:14px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);margin-bottom:8px;padding:0}
+.filters legend,.field label{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ash);margin-bottom:8px;padding:0}
 .chip{font-size:15px;font-weight:500;padding:9px 16px;background:transparent;color:var(--ink);border:1px solid var(--pebble)}
+.chip:hover{border-color:var(--ink)}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
-.field{display:flex;flex-direction:column;flex:1;min-width:200px}
-.field input,.field select,.field textarea{font:inherit;font-size:17px;padding:11px 18px;border:1px solid var(--pebble);border-radius:var(--pill);background:var(--canvas);color:var(--ink)}
+.field{display:flex;flex-direction:column;flex:1;min-width:180px}
+.field input,.field select,.field textarea{font:inherit;font-size:17px;padding:11px 18px;border:1px solid var(--pebble);border-radius:var(--pill);background:var(--raise);color:var(--ink)}
 .field textarea{border-radius:22px;min-height:110px;resize:vertical}
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px;color:var(--ash)}
+@media (max-width:820px){.filters{position:static}}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:48px 24px}
-.card{display:flex;flex-direction:column;gap:14px;min-width:0}
-.card .pic{display:block;aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--deck)}
-.pic img{width:100%;height:100%;object-fit:cover;display:block}
-.ph{width:100%;height:100%;display:grid;place-items:center;font-size:64px;font-weight:700;letter-spacing:-.03em;color:#fff;background:var(--deck)}
-.card .title{border-top:1px solid var(--pebble);padding-top:14px;display:grid;gap:10px}
-.card .title a{text-decoration:none}
-.card .title a:hover{text-decoration:underline;text-underline-offset:4px}
-.tags{display:flex;gap:6px;flex-wrap:wrap}
-.card p{color:var(--ash);font-size:17px}
+/* ---------- cartes ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:44px 24px}
+.card{position:relative;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card .pic{position:relative;display:block;aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--deck)}
+.card .pic img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
+.card:hover .pic img{transform:scale(1.04)}
+.card .pic .tag{position:absolute;left:12px;top:12px;background:#fff;color:#000d10;border-color:#fff}
+.card .pic .tag.free{background:rgba(0,13,16,.65);color:#fff;border-color:rgba(255,255,255,.7)}
+.card .pick-badge{position:absolute;left:12px;bottom:12px;background:var(--clay);color:#fff;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:var(--pill)}
+.heart{position:absolute;right:12px;top:12px;z-index:2;width:42px;height:42px;padding:0;border-radius:50%;background:rgba(255,255,255,.92);color:#000d10;border:0;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.heart svg{width:20px;height:20px}
+.heart[aria-pressed="true"]{background:var(--clay);color:#fff}
+.card .meta{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ash)}
+.card h3 a{text-decoration:none}
+.card h3 a:hover{text-decoration:underline;text-underline-offset:4px}
+.card p{color:var(--ash);font-size:16px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .addr{display:inline-flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.4;color:var(--ink);text-decoration:underline;text-decoration-color:var(--pebble);text-underline-offset:4px}
 .addr:hover{text-decoration-color:currentColor}
 .addr svg{flex:none;margin-top:1px}
-.card .row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:4px;flex-wrap:wrap}
-.fav{font-size:15px;padding:9px 16px;background:transparent;color:var(--ink);border:1px solid var(--pebble)}
-.fav[aria-pressed="true"]{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
-.pick{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.ph{width:100%;height:100%;display:grid;place-items:center;font-size:56px;font-weight:700;letter-spacing:-.03em;color:#fff;background:var(--deck)}
 .by{font-size:14px;color:var(--ash)}
 .credit{font-size:13px;color:var(--ash);line-height:1.4}
+.skel .pic{animation:pulse 1.4s ease-in-out infinite}
+.skel .line{height:14px;background:var(--soft);border-radius:6px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.5}}
 
+/* ---------- fiche ---------- */
 .back{color:var(--ash);text-decoration:none;font-size:16px}
 .back:hover{color:var(--ink)}
-.detail{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:48px;margin-top:24px}
+.detail{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:48px;margin-top:24px;align-items:start}
 .detail .pic{aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--deck)}
-.facts{background:var(--hull);color:var(--on-dark);padding:38px;display:grid;gap:22px;align-content:start}
+.detail .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.detail .lede{color:var(--ink)}
+.facts{position:sticky;top:calc(90px + env(safe-area-inset-top,0px));background:var(--hull);color:var(--on-dark);padding:36px;display:grid;gap:22px}
 .facts dl{margin:0;display:grid}
 .facts dl div{border-top:1px solid color-mix(in srgb,var(--on-dark) 20%,transparent);padding-block:12px;display:grid;gap:2px}
-.facts dt{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--on-dark-muted)}
-.facts dd{margin:0;font-size:18px}
+.facts dt{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--on-dark-muted)}
+.facts dd{margin:0;font-size:17px}
 .facts .addr{color:var(--on-dark)}
 .facts .btn{background:var(--on-dark);color:var(--hull);border-color:var(--on-dark)}
-.facts .fav{color:var(--on-dark);border-color:color-mix(in srgb,var(--on-dark) 40%,transparent)}
-.facts .fav[aria-pressed="true"]{background:var(--on-dark);color:var(--hull)}
+.facts .btn.ghost{background:transparent;color:var(--on-dark);border-color:color-mix(in srgb,var(--on-dark) 45%,transparent)}
+.city-hero{position:relative;min-height:340px;display:flex;align-items:flex-end;color:#fff;overflow:hidden;background:var(--deck)}
+.city-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.city-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,13,16,.15),rgba(0,13,16,.75))}
+.city-hero .wrap{position:relative;z-index:1;width:100%;padding-block:40px;display:grid;gap:10px}
+.city-hero .back{color:rgba(255,255,255,.85)}
+.city-hero p{max-width:60ch;font-size:19px;opacity:.92}
 
-/* assistant */
-.chat{display:grid;grid-template-rows:1fr auto;border:1px solid var(--pebble);min-height:520px;margin-top:32px}
-.msgs{padding:24px;display:flex;flex-direction:column;gap:20px;max-height:62vh;overflow-y:auto}
-.msg{max-width:min(720px,100%);display:grid;gap:12px}
-.msg .bubble{padding:14px 20px;border-radius:22px;font-size:17px;white-space:pre-wrap;overflow-wrap:anywhere}
-.msg.user{align-self:flex-end}
-.msg.user .bubble{background:var(--ink);color:var(--canvas);border-bottom-right-radius:6px}
+/* ---------- assistant (pop-up) ---------- */
+.ai-fab{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:40;box-shadow:var(--shadow);padding:16px 22px;gap:10px;background:var(--clay);border-color:var(--clay);color:#fff}
+.ai-fab svg{width:20px;height:20px}
+.ai-panel{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:45;width:min(420px,calc(100vw - 32px));height:min(640px,calc(100vh - 110px));display:flex;flex-direction:column;background:var(--canvas);border:1px solid var(--pebble);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;animation:pop .2s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}}
+.ai-head{display:flex;align-items:center;gap:12px;padding:16px 18px;background:var(--hull);color:var(--on-dark)}
+.ai-head b{font-size:18px;display:block;line-height:1.2}
+.ai-head small{font-size:13px;color:var(--on-dark-muted)}
+.ai-head .iconbtn{margin-left:auto;background:transparent;border-color:color-mix(in srgb,var(--on-dark) 30%,transparent);color:var(--on-dark);width:38px;height:38px}
+.ai-dot{width:38px;height:38px;border-radius:50%;background:var(--clay);display:grid;place-items:center;flex:none}
+.ai-dot svg{width:18px;height:18px;color:#fff}
+.msgs{flex:1;padding:18px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+.msg{display:grid;gap:10px;max-width:100%}
+.msg .bubble{padding:12px 16px;border-radius:18px;font-size:16px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.user{justify-items:end}
+.msg.user .bubble{background:var(--ink);color:var(--canvas);border-bottom-right-radius:6px;max-width:85%}
 .msg.bot .bubble{background:var(--soft);border-bottom-left-radius:6px}
 .msg.err .bubble{background:transparent;border:1px solid var(--clay);color:var(--ink)}
-.minis{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.mini{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;border-top:1px solid var(--pebble);padding-top:12px;text-decoration:none}
-.mini .pic{aspect-ratio:1;overflow:hidden;background:var(--deck)}
-.mini .ph{font-size:28px}
-.mini b{font-size:17px;line-height:1.2;display:block}
-.mini span{font-size:14px;color:var(--ash)}
-.composer{display:flex;gap:8px;padding:16px;border-top:1px solid var(--pebble);flex-wrap:wrap}
-.composer input{flex:1;min-width:0;font:inherit;font-size:17px;padding:14px 22px;border-radius:var(--pill);border:1px solid var(--pebble);background:var(--canvas);color:var(--ink)}
-.suggest{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
-.typing{color:var(--ash);font-size:15px}
-.ai-note{font-size:14px;color:var(--ash);margin-top:12px}
-.ask-band{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;padding-block:28px;border-top:1px solid var(--pebble);border-bottom:1px solid var(--pebble);margin-bottom:40px}
+.minis{display:grid;gap:8px}
+.mini{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;padding:8px;border:1px solid var(--pebble);border-radius:14px;text-decoration:none;background:var(--raise)}
+.mini:hover{border-color:var(--ink)}
+.mini .pic{aspect-ratio:1;overflow:hidden;border-radius:10px;background:var(--deck)}
+.mini .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.mini .ph{font-size:20px}
+.mini b{font-size:15px;line-height:1.25;display:block}
+.mini span{font-size:13px;color:var(--ash)}
+.typing{display:flex;gap:5px;padding:14px 16px;background:var(--soft);border-radius:18px;width:max-content}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--ash);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{50%{opacity:.25}}
+.suggest{display:flex;gap:6px;flex-wrap:wrap}
+.suggest .chip{font-size:14px;padding:8px 12px;text-align:left}
+.composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--pebble)}
+.composer input{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px 18px;border-radius:var(--pill);border:1px solid var(--pebble);background:var(--raise);color:var(--ink)}
+.composer button{padding:12px 16px}
+.ai-note{font-size:12px;color:var(--ash);padding:0 16px 12px;line-height:1.4}
+.ai-tabs{display:flex;gap:4px;padding:10px 12px 0;border-bottom:1px solid var(--pebble)}
+.ai-tabs button{flex:1;background:transparent;color:var(--ash);border:0;border-bottom:2px solid transparent;border-radius:0;font-size:15px;padding:10px 8px 12px}
+.ai-tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--clay)}
+.ai-plan{flex:1;overflow-y:auto;padding:18px;display:grid;gap:14px;align-content:start}
+.ai-plan .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ai-plan .field{min-width:0}
 
+/* ---------- planificateur ---------- */
+.planner{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:48px;align-items:start;margin-top:32px}
+.plan-form{position:sticky;top:calc(90px + env(safe-area-inset-top,0px));display:grid;gap:18px;padding:28px;border:1px solid var(--pebble);background:var(--raise)}
+.plan-form .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.plan-form fieldset{border:0;padding:0;margin:0;display:flex;gap:6px;flex-wrap:wrap}
+.plan-form legend{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ash);margin-bottom:8px;padding:0}
+.plan-form .field textarea{min-height:80px}
+.day{border-top:2px solid var(--ink);padding-top:18px;margin-bottom:44px}
+.day h3{font-size:30px;margin-top:4px}
+.step{display:grid;grid-template-columns:110px 150px minmax(0,1fr);gap:18px;padding-block:16px;border-bottom:1px solid var(--pebble);align-items:start}
+.step .when{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--clay-ink);padding-top:4px}
+.step .pic{aspect-ratio:4/3;overflow:hidden;background:var(--deck);display:block}
+.step .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.step h4{margin:0;font-size:20px;line-height:1.2}
+.step h4 a{text-decoration:none}.step h4 a:hover{text-decoration:underline}
+.step p{font-size:16px;color:var(--ash);margin-top:6px}
+.step .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.plan-head{display:grid;gap:12px;padding:28px;background:var(--hull);color:var(--on-dark);margin-bottom:40px}
+.plan-head .muted{color:var(--on-dark-muted)}
+.plan-head .btn{background:var(--on-dark);color:var(--hull);border-color:var(--on-dark)}
+.plan-head .btn.ghost{background:transparent;color:var(--on-dark);border-color:color-mix(in srgb,var(--on-dark) 45%,transparent)}
+.plan-empty{padding:40px;border:1px dashed var(--pebble);display:grid;gap:12px;color:var(--ash)}
+@media (max-width:900px){.planner{grid-template-columns:1fr}.plan-form{position:static}}
+@media (max-width:560px){.step{grid-template-columns:90px minmax(0,1fr)}.step .when{grid-column:1/-1;padding:0}}
+@media (max-width:560px){
+  .ai-panel{right:0;bottom:0;width:100vw;height:calc(100dvh - env(safe-area-inset-top,0px));border-radius:22px 22px 0 0}
+  .ai-fab span{display:none}
+  .ai-fab{padding:16px}
+}
+
+/* ---------- divers ---------- */
 main{padding-block:48px var(--section)}
-.lede{font-size:20px;color:var(--ash);max-width:60ch;margin-top:16px}
+.lede{font-size:20px;color:var(--ash);max-width:62ch;margin-top:16px}
 .empty{padding:48px 24px;text-align:center;color:var(--ash);border-top:1px solid var(--pebble);border-bottom:1px solid var(--pebble)}
 .banner{padding:16px 22px;background:var(--soft);margin-bottom:24px;font-size:16px}
 .form{display:grid;gap:18px;max-width:720px;margin-top:32px}
 .form .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.err{color:var(--clay);font-size:16px}
+.err{color:var(--clay-ink);font-size:16px}
 .ok{font-size:16px}
 .tabs{display:flex;gap:6px;margin-top:32px}
 .list{display:grid;margin-top:16px}
@@ -185,43 +294,102 @@ main{padding-block:48px var(--section)}
 .status{font-size:13px;font-weight:700;padding:5px 10px;border-radius:var(--pill);border:1px solid var(--pebble)}
 .status.approved{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
 .status.rejected{color:var(--ash);text-decoration:line-through}
-.prose{max-width:65ch;display:grid;gap:18px}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--canvas);padding:13px 22px;border-radius:var(--pill);font-size:16px;font-weight:500;z-index:20}
-footer{background:#000d10;color:#fff;padding-block:64px 40px}
-footer .big{font-size:clamp(56px,12vw,131px);line-height:.85;letter-spacing:-.02em;font-weight:700}
-footer p{color:#a3a3ab;font-size:15px;margin-top:28px;max-width:70ch}
+.prose{max-width:70ch;display:grid;gap:16px}
+.prose h2{font-size:30px;margin-top:20px}
+.prose ul{margin:0;padding-left:22px;display:grid;gap:6px}
+.more{display:flex;justify-content:center;margin-top:40px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--canvas);padding:13px 22px;border-radius:var(--pill);font-size:16px;font-weight:500;z-index:60;box-shadow:var(--shadow)}
+
+/* ---------- pied de page ---------- */
+footer.foot{background:#000d10;color:#fff;padding-block:72px 40px}
+.foot .big{font-size:clamp(56px,12vw,131px);line-height:.85;letter-spacing:-.02em;font-weight:700}
+.foot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,.15)}
+.foot h4{margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#a3a3ab}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.foot a{color:#fff;text-decoration:none;font-size:16px}
+.foot a:hover{text-decoration:underline}
+.foot p{color:#c4c4cb;font-size:15px;line-height:1.55}
+.foot .legal{margin-top:40px;color:#8e8e95;font-size:14px}
+
 @media (max-width:820px){
   .hero-row{grid-template-columns:1fr}.hero-row h1{text-align:left}
   .feature{grid-template-columns:1fr}.feature .txt{padding:32px 24px}.feature .pic{min-height:240px}
-  .detail{grid-template-columns:1fr;gap:28px}.facts{padding:28px 22px}
+  .detail{grid-template-columns:1fr;gap:28px}.facts{position:static;padding:28px 22px}
   .form .two{grid-template-columns:1fr}
-  .msgs{padding:16px}
+  :root{--section:64px}
 }
-@media (prefers-reduced-motion:reduce){.city img{transition:none}}
 </style>
 </head>
 <body>
+<a class="skip" href="#app">Aller au contenu</a>
 
-<header><div class="wrap nav">
+<header class="top"><div class="wrap nav">
   <a class="logo" href="#accueil">CityPick's</a>
-  <nav aria-label="Navigation principale">
+  <nav class="links" id="links" aria-label="Navigation principale">
     <a href="#accueil" data-nav="accueil">Villes</a>
-    <a href="#assistant" data-nav="assistant">Assistant IA</a>
+    <a href="#explorer" data-nav="explorer">Explorer</a>
+    <a href="#planificateur" data-nav="planificateur">Planificateur</a>
     <a href="#favoris" data-nav="favoris">Favoris<span class="count" id="favCount">0</span></a>
     <a href="#proposer" data-nav="proposer">Proposer</a>
     <a href="#moderation" data-nav="moderation" id="modLink" hidden>Modération</a>
     <a href="#a-propos" data-nav="a-propos">À propos</a>
-    <a href="#compte" data-nav="compte">Mon compte</a>
+    <a href="#compte" data-nav="compte" id="accountLink">Mon compte</a>
   </nav>
-  <div class="who" id="who"></div>
+  <div class="tools">
+    <span class="who" id="who"></span>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="Passer en thème sombre" title="Thème clair / sombre"></button>
+    <button class="iconbtn burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="links"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
 </div></header>
 
-<div id="app"></div>
+<div id="app" tabindex="-1"></div>
+
+<button class="ai-fab" id="aiFab" type="button" aria-expanded="false" aria-controls="aiPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg><span>Assistant IA</span></button>
+<section class="ai-panel" id="aiPanel" role="dialog" aria-label="Assistant IA CityPick's" hidden>
+  <div class="ai-head">
+    <div class="ai-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg></div>
+    <div><b>Assistant CityPick's</b><small>Des adresses du catalogue, selon votre budget</small></div>
+    <button class="iconbtn" id="aiReset" type="button" aria-label="Nouvelle conversation" title="Nouvelle conversation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+    <button class="iconbtn" id="aiClose" type="button" aria-label="Fermer l'assistant" style="margin-left:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="ai-tabs" role="tablist" aria-label="Mode de l'assistant">
+    <button type="button" role="tab" id="tabChat" data-aitab="chat" aria-selected="true">Discuter</button>
+    <button type="button" role="tab" id="tabPlan" data-aitab="plan" aria-selected="false">Planifier un séjour</button>
+  </div>
+  <form class="ai-plan" id="aiPlanForm" hidden>
+    <p style="font-size:15px;color:var(--ash)">L'agent <b style="color:var(--ink)">Planificateur de séjour</b> compose un programme jour par jour (matin, après-midi, soir) avec des adresses CityPick's.</p>
+    <div class="field"><label for="apCity">Ville</label><select id="apCity"></select></div>
+    <div class="two">
+      <div class="field" style="min-width:0"><label for="apDays">Jours</label><select id="apDays"><option value="1">1 jour</option><option value="2" selected>2 jours</option><option value="3">3 jours</option><option value="4">4 jours</option><option value="5">5 jours</option></select></div>
+      <div class="field" style="min-width:0"><label for="apBudget">Budget max</label><select id="apBudget"><option value="free">Gratuit</option><option value="p1">€ · &lt;15 €</option><option value="p2" selected>€€ · 15-40 €</option><option value="p3">€€€ · sans limite</option></select></div>
+    </div>
+    <button type="submit">Créer mon itinéraire</button>
+  </form>
+  <div class="msgs" id="msgs" aria-live="polite"></div>
+  <form class="composer" id="chatForm">
+    <label for="chatInput" class="sr">Votre question</label>
+    <input id="chatInput" maxlength="600" placeholder="Ex. : un resto pas cher à Rome" autocomplete="off">
+    <button type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+  <p class="ai-note">Réponses générées par IA (Google Gemini) à partir du catalogue : vérifiez horaires et prix. N'indiquez pas d'informations personnelles.</p>
+</section>
+
 <div class="toast" id="toast" role="status" hidden></div>
 
-<footer><div class="wrap">
+<footer class="foot"><div class="wrap">
   <div class="big">CityPick's.</div>
-  <p>Prototype réalisé dans le cadre d'une formation. Adresses données à titre indicatif, prix indicatifs par personne : vérifiez horaires et tarifs avant d'y aller. Photos : Wikimedia Commons, auteurs et licences crédités sur chaque fiche. Assistant : réponses générées par IA (Google Gemini) à partir du catalogue. Données enregistrées : e-mail, pseudo, ville préférée, favoris et propositions, uniquement pour faire fonctionner le service ; supprimables à tout moment depuis Mon compte.</p>
+  <div class="foot-grid">
+    <div><h4>Le projet</h4><p>Les meilleures adresses de 12 villes d'Europe, triées par budget. Projet réalisé dans le cadre de la formation Vibe Coding &amp; A2A (Jedy Formation).</p></div>
+    <div><h4>Villes</h4><ul id="footCities"></ul></div>
+    <div><h4>Infos</h4><ul>
+      <li><a href="#a-propos">À propos</a></li>
+      <li><a href="#confidentialite">Politique de confidentialité</a></li>
+      <li><a href="#confidentialite-mentions">Mentions légales</a></li>
+      <li><a href="#compte">Mon compte et mes données</a></li>
+    </ul></div>
+    <div><h4>Vos données (RGPD)</h4><p>Avec un compte, nous enregistrons votre e-mail, votre pseudo, votre ville préférée, vos favoris et vos propositions, uniquement pour faire fonctionner le service. Aucun cookie publicitaire ni de mesure d'audience. Vous pouvez consulter, corriger et supprimer vos données à tout moment depuis <a href="#compte" style="text-decoration:underline">Mon compte</a>.</p></div>
+  </div>
+  <p class="legal">© 2026 CityPick's · Adresses et prix donnés à titre indicatif, à vérifier avant d'y aller · Photos : Wikimedia Commons, auteurs et licences crédités sur chaque fiche · Assistant : Google Gemini.</p>
 </div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
@@ -230,7 +398,8 @@ footer p{color:#a3a3ab;font-size:15px;margin-top:28px;max-width:70ch}
 "use strict";
 /* ================= configuration ================= */
 const CFG = window.CITYPICKS_CONFIG || {};
-const LIVE = !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && window.supabase);
+const FORCE_DEMO = /[?&]demo\b/.test(location.search);
+const LIVE = !FORCE_DEMO && !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY) : null;
 
 const PRICE = {
@@ -241,15 +410,28 @@ const PRICE = {
 };
 const CATS = ["Restaurant","Activité","Bar & nuit","Culture"];
 const CITIES = {
-  paris:{name:"Paris", country:"France", cover:"s32", feature:"s01"},
-  lisbonne:{name:"Lisbonne", country:"Portugal", cover:"s44", feature:"s05"},
-  barcelone:{name:"Barcelone", country:"Espagne", cover:"s10", feature:"s10"},
-  rome:{name:"Rome", country:"Italie", cover:"s58", feature:"s13"},
-  berlin:{name:"Berlin", country:"Allemagne", cover:"s69", feature:"s18"},
-  amsterdam:{name:"Amsterdam", country:"Pays-Bas", cover:"s89", feature:"s22"}
+  paris:{name:"Paris", country:"France", cover:"s32", feature:"s01", intro:"Bistrots centenaires, musées de légende et canaux où l'on pique-nique : Paris côté grands classiques et côté Parisiens."},
+  londres:{name:"Londres", country:"Royaume-Uni", cover:"lon07", feature:"lon13", intro:"Des musées gratuits parmi les meilleurs du monde, des pubs historiques et des marchés gourmands à chaque coin de rue."},
+  madrid:{name:"Madrid", country:"Espagne", cover:"mad06", feature:"mad10", intro:"Le triangle d'or des musées, des tapas de bar en bar et des nuits qui commencent quand les autres finissent."},
+  barcelone:{name:"Barcelone", country:"Espagne", cover:"s10", feature:"s10", intro:"Gaudí à chaque coin de rue, la mer à dix minutes à pied et des marchés où l'on déjeune au comptoir."},
+  lisbonne:{name:"Lisbonne", country:"Portugal", cover:"s44", feature:"s05", intro:"Belvédères, azulejos et tramways jaunes : une ville en pente, douce et lumineuse, où l'on mange très bien pour peu."},
+  rome:{name:"Rome", country:"Italie", cover:"s58", feature:"rom10", intro:"Deux mille ans d'histoire en plein air, des cafés historiques et des quartiers où l'aperitivo est un art de vivre."},
+  berlin:{name:"Berlin", country:"Allemagne", cover:"s69", feature:"ber12", intro:"La mémoire du Mur, des musées de premier plan et une nuit parmi les plus libres d'Europe."},
+  amsterdam:{name:"Amsterdam", country:"Pays-Bas", cover:"s89", feature:"s22", intro:"Canaux, cafés bruns et grands maîtres : une ville à parcourir à vélo, entre Rembrandt et quartiers créatifs."},
+  prague:{name:"Prague", country:"Tchéquie", cover:"prg01", feature:"prg13", intro:"La ville aux cent clochers : ponts gothiques, cafés Art nouveau et la meilleure bière d'Europe à petit prix."},
+  vienne:{name:"Vienne", country:"Autriche", cover:"vie01", feature:"vie11", intro:"Palais impériaux, cafés viennois et musique partout : l'élégance des Habsbourg, à savourer lentement."},
+  copenhague:{name:"Copenhague", country:"Danemark", cover:"cph01", feature:"cph13", intro:"Ports colorés, design scandinave et vélos par milliers : la capitale du hygge, à l'échelle humaine."},
+  budapest:{name:"Budapest", country:"Hongrie", cover:"bud01", feature:"bud18", intro:"Bains thermaux, ruin bars et panoramas sur le Danube : une capitale grandiose et étonnamment abordable."}
 };
-const HOME_FEATURE = "s05";
-const SUGGESTIONS = ["Les meilleures activités à faire à Paris","Un resto pas cher à Rome","Que faire gratuitement à Berlin ?","Une soirée à Lisbonne pour moins de 15 €","Un musée incontournable à Amsterdam"];
+const PICKS = Object.values(CITIES).map(c=>c.feature);
+const SUGGESTIONS = ["Les meilleures activités à faire à Paris","Un resto pas cher à Rome","Que faire gratuitement à Londres ?","Une soirée à Budapest pour moins de 15 €","Un musée incontournable à Vienne","Un week-end à Prague, des idées ?"];
+const MOODS = [
+  {k:"cat:Restaurant", t:"Bien manger", d:"Marchés, cafés historiques, tables mythiques", i:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 2-2 6 0 8v10"/>'},
+  {k:"cat:Activité", t:"Se balader", d:"Parcs, belvédères, quartiers à flâner", i:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>'},
+  {k:"cat:Culture", t:"Se cultiver", d:"Musées, palais, églises et monuments", i:'<path d="M3 10l9-6 9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/>'},
+  {k:"cat:Bar & nuit", t:"Sortir le soir", d:"Bars, clubs, jazz et concerts", i:'<path d="M8 3h8l-4 7zM12 10v8M8 21h8"/>'},
+  {k:"price:free", t:"Gratuit", d:"Tout ce qui ne coûte rien", i:'<circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>'}
+];
 
 /* ================= état ================= */
 const S = {
@@ -257,8 +439,10 @@ const S = {
   spots:[], user:null, profile:null, isAdmin:false,
   favs:new Set(), myProps:[], allProps:[], profiles:{},
   f:{cats:new Set(), prices:new Set(), q:"", sort:"pick"},
+  ex:{city:"", cats:new Set(), prices:new Set(), q:"", shown:24},
   authTab:"login", recovery:false,
-  chat:[], chatBusy:false, chatDraft:""
+  chat:[], chatBusy:false, aiOpen:false, aiTab:"chat",
+  plan:{city:"paris", days:2, budget:"p2", interests:new Set(), note:"", busy:false, result:null, error:""}
 };
 const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const priceTag = p => PRICE[p] ? `<span class="tag ${PRICE[p].cls}">${PRICE[p].label}</span>` : "";
@@ -266,36 +450,55 @@ const initials = n => String(n).split(/\s+/).filter(w=>/^[A-ZÀ-Ý]/.test(w)).sl
 const route0 = () => decodeURIComponent((location.hash||"#accueil").slice(1));
 const spotById = id => S.spots.find(s=>s.id===id);
 const isIn = () => LIVE ? !!(S.user && S.profile) : false;
+const canFav = () => !LIVE || isIn();
 const mapsUrl = s => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([s.name, s.address || s.hood, CITIES[s.city]?.name].filter(Boolean).join(", "));
-const PIN = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>`;
+const ICON = {
+  pin:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>`,
+  heart:`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.6 2.9 4.5 6.7 4.5c2.1 0 3.6 1.1 5.3 3 1.7-1.9 3.2-3 5.3-3 3.8 0 5.8 4.1 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>`,
+  heartLine:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.6 2.9 4.5 6.7 4.5c2.1 0 3.6 1.1 5.3 3 1.7-1.9 3.2-3 5.3-3 3.8 0 5.8 4.1 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>`,
+  sun:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`,
+  moon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>`
+};
 function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2800); }
 const safeImg = p => /^img\/[\w.-]+\.(jpg|jpeg|png|webp)$/i.test(p||"") ? p : "";
-
-/* favoris en mode démo : dans le navigateur */
 function demoFavsLoad(){ try{ return new Set(JSON.parse(localStorage.getItem("cp-favs")||"[]")); }catch(e){ return new Set(); } }
 function demoFavsSave(){ try{ localStorage.setItem("cp-favs", JSON.stringify([...S.favs])); }catch(e){} }
+/* le « pick de la semaine » change chaque semaine parmi les picks des 12 villes */
+const weekPick = () => PICKS[Math.floor(Date.now()/(7*864e5)) % PICKS.length];
+
+/* ================= thème ================= */
+function applyTheme(t){
+  if(t==="dark") document.documentElement.setAttribute("data-theme","dark"); else document.documentElement.removeAttribute("data-theme");
+  const b = document.getElementById("themeBtn");
+  b.innerHTML = t==="dark" ? ICON.sun : ICON.moon;
+  b.setAttribute("aria-label", t==="dark" ? "Passer en thème clair" : "Passer en thème sombre");
+}
+document.getElementById("themeBtn").addEventListener("click", ()=>{
+  const next = document.documentElement.getAttribute("data-theme")==="dark" ? "light" : "dark";
+  try{ localStorage.setItem("cp-theme", next); }catch(e){}
+  applyTheme(next);
+});
+applyTheme(document.documentElement.getAttribute("data-theme")==="dark" ? "dark" : "light");
 
 /* ================= morceaux d'interface ================= */
-const photo = (s, alt) => s && safeImg(s.photo) ? `<img src="${esc(safeImg(s.photo))}" alt="${esc(alt ?? s.name)}" loading="lazy">` : `<div class="ph" aria-hidden="true">${esc(initials(s ? s.name : "?"))}</div>`;
-const addrLink = s => `<a class="addr" href="${mapsUrl(s)}" target="_blank" rel="noopener">${PIN}<span>${esc(s.address || s.hood)}</span></a>`;
-const canFav = () => !LIVE || isIn();
-const favBtn = (id,on) => canFav() ? `<button class="fav" data-fav="${esc(id)}" aria-pressed="${on}">${on?"♥ Enregistré":"♡ Enregistrer"}</button>` : "";
+const photo = (s, alt) => s && safeImg(s.photo) ? `<img src="${esc(safeImg(s.photo))}" alt="${esc(alt ?? s.name)}" loading="lazy" decoding="async">` : `<div class="ph" aria-hidden="true">${esc(initials(s ? s.name : "?"))}</div>`;
+const addrLink = s => `<a class="addr" href="${mapsUrl(s)}" target="_blank" rel="noopener">${ICON.pin}<span>${esc(s.address || s.hood)}</span></a>`;
+const heartBtn = s => { const on = S.favs.has(s.id); return `<button class="heart" data-fav="${esc(s.id)}" aria-pressed="${on}" aria-label="${on?"Retirer des favoris":"Ajouter aux favoris"} : ${esc(s.name)}">${on?ICON.heart:ICON.heartLine}</button>`; };
+const favBtn = s => { const on = S.favs.has(s.id); return `<button class="${on?"":"ghost"}" data-fav="${esc(s.id)}" aria-pressed="${on}">${on?"♥ Enregistré":"♡ Enregistrer"}</button>`; };
 const byLine = s => s.proposed_by_name ? `<span class="by">Proposé par ${esc(s.proposed_by_name)}</span>` : "";
 
-function card(s){
+function card(s, showCity){
   return `<article class="card">
-    <a class="pic" href="#spot-${esc(s.id)}" tabindex="-1">${photo(s,"")}</a>
-    <div class="title">
-      ${s.pick?'<span class="pick">Le pick de la rédac</span>':''}
-      <h3><a href="#spot-${esc(s.id)}">${esc(s.name)}</a></h3>
-      <div class="tags">${priceTag(s.price)}<span class="tag cat">${esc(s.cat)}</span><span class="tag cat">${esc(s.hood)}</span></div>
-    </div>
+    <a class="pic" href="#spot-${esc(s.id)}" tabindex="-1" aria-hidden="true">${photo(s,"")}${priceTag(s.price)}${s.pick?'<span class="pick-badge">Pick de la rédac</span>':''}</a>
+    ${heartBtn(s)}
+    <span class="meta">${esc(s.cat)} · ${showCity ? esc(CITIES[s.city]?.name||"") : esc(s.hood)}</span>
+    <h3><a href="#spot-${esc(s.id)}">${esc(s.name)}</a></h3>
     <p>${esc(s.desc)}</p>
     ${addrLink(s)}
     ${byLine(s)}
-    <div class="row">${favBtn(s.id,S.favs.has(s.id))}</div>
   </article>`;
 }
+const skeletons = n => Array.from({length:n},()=>`<div class="card skel" aria-hidden="true"><div class="pic"></div><div class="line" style="width:40%"></div><div class="line" style="width:80%;height:20px"></div><div class="line"></div><div class="line" style="width:70%"></div></div>`).join("");
 function feature(s, label){
   if(!s) return "";
   return `<article class="feature">
@@ -305,20 +508,30 @@ function feature(s, label){
       <div class="tags">${priceTag(s.price)}<span class="tag cat">${esc(s.cat)}</span><span class="tag cat">${esc(CITIES[s.city].name)}</span></div>
       <p>${esc(s.desc)}</p>
       ${addrLink(s)}
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#spot-${esc(s.id)}">Voir la fiche</a>${favBtn(s.id,S.favs.has(s.id))}</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#spot-${esc(s.id)}">Voir la fiche</a><a class="btn ghost" href="#${esc(s.city)}">Tout ${esc(CITIES[s.city].name)}</a></div>
     </div>
     <div class="pic">${photo(s,"")}</div>
   </article>`;
 }
-function gate(){
-  if(S.loading) return `<div class="empty">Chargement des adresses…</div>`;
+function gate(n){
+  if(S.loading) return `<div class="grid">${skeletons(n||6)}</div>`;
   if(S.error) return `<div class="empty">Les adresses n'ont pas pu être chargées. Vérifiez votre connexion puis rechargez la page.</div>`;
   return "";
 }
 function needAccount(what){
-  if(!LIVE) return `<div class="empty">Les comptes ne sont pas encore activés sur ce site (mode démo).</div>`;
+  if(!LIVE) return `<div class="empty">Les comptes ne sont pas activés sur cette version (mode démo).</div>`;
   return `<div class="empty">Connectez-vous ou créez un compte pour ${what}.<br><br><a class="btn" href="#compte">Me connecter</a></div>`;
 }
+function applyFilters(list, f){
+  const q = f.q.trim().toLowerCase();
+  return list.filter(s=>(!f.cats.size || f.cats.has(s.cat)) && (!f.prices.size || f.prices.has(s.price)) && (!q || [s.name,s.hood,s.address,s.desc].join(" ").toLowerCase().includes(q)));
+}
+const filterBar = (f, extra) => `<div class="filters">
+    ${extra||""}
+    <fieldset><legend>Catégorie</legend>${CATS.map(x=>`<button type="button" class="chip" data-cat="${x}" aria-pressed="${f.cats.has(x)}">${x}</button>`).join("")}</fieldset>
+    <fieldset><legend>Prix</legend>${Object.keys(PRICE).map(p=>`<button type="button" class="chip" data-price="${p}" aria-pressed="${f.prices.has(p)}">${PRICE[p].label}</button>`).join("")}</fieldset>
+    <div class="field"><label for="q">Rechercher</label><input id="q" value="${esc(f.q)}" placeholder="Nom, quartier, rue…" autocomplete="off"></div>
+  </div>`;
 
 /* ================= vues ================= */
 function home(){
@@ -326,21 +539,32 @@ function home(){
   return `<section class="hero"><div class="wrap">
       <div class="wordmark">CityPick's.</div>
       <div class="hero-row">
-        <form class="search" id="citySearch" role="search">
-          <label class="eyebrow" for="cityInput" style="width:100%">Où partez-vous ?</label>
-          <input id="cityInput" list="cityList" placeholder="Paris, Lisbonne, Berlin…" autocomplete="off">
-          <datalist id="cityList">${Object.values(CITIES).map(c=>`<option value="${c.name}">`).join("")}</datalist>
-          <button type="submit">Voir les spots</button>
-          <p id="searchMsg" class="search-msg muted" hidden style="width:100%"></p>
-        </form>
+        <div style="display:grid;gap:18px">
+          <form class="search" id="citySearch" role="search">
+            <label class="eyebrow" for="cityInput" style="width:100%">Où partez-vous ?</label>
+            <input id="cityInput" list="cityList" placeholder="Paris, Londres, Prague…" autocomplete="off">
+            <datalist id="cityList">${Object.values(CITIES).map(c=>`<option value="${c.name}">`).join("")}</datalist>
+            <button type="submit">Voir les spots</button>
+            <p id="searchMsg" class="muted" hidden style="width:100%;font-size:15px"></p>
+          </form>
+          <div class="quick">${Object.entries(CITIES).slice(0,6).map(([k,c])=>`<a href="#${k}">${c.name}</a>`).join("")}<a href="#explorer">+ 6 villes</a></div>
+        </div>
         <h1>Les meilleures adresses d'Europe. Triées par budget.</h1>
       </div>
+      <div class="stats"><div><b>12</b><span>villes</span></div><div><b>${S.loading?"360":S.spots.length}</b><span>adresses choisies</span></div><div><b>4</b><span>tags de prix</span></div><div><b>1</b><span>assistant IA</span></div></div>
     </div></section>
     <section class="band"><div class="wrap">
-      ${gate() || feature(spotById(HOME_FEATURE),"Le pick de la semaine")}
-      <div class="ask-band"><div style="display:grid;gap:6px"><h3>Pas d'idée ? Demandez à l'assistant.</h3><p class="muted" style="font-size:17px">« Les meilleures activités à faire à Paris », « un resto pas cher à Rome »…</p></div><a class="btn" href="#assistant">Poser une question</a></div>
-      <div class="head"><h2>Six villes,<br>${S.loading?"des dizaines d'":S.spots.length+" "}adresses.</h2><p class="muted" style="max-width:36ch">Restos, activités, bars et musées repérés ville par ville, chacun avec son tag de prix.</p></div>
-      <div class="cities">${Object.entries(CITIES).map(([k,c])=>`<a class="city" href="#${k}">${photo(spotById(c.cover), c.name)}<span><b>${c.name}</b><small>${c.country} · ${S.loading?"…":n(k)+" spots"}</small></span></a>`).join("")}</div>
+      ${S.loading||S.error ? "" : feature(spotById(weekPick()),"Le pick de la semaine")}
+      <div class="head"><h2>Douze villes,<br>une sélection.</h2><p class="muted" style="max-width:38ch">Trente adresses par ville, chacune avec sa photo, son tag de prix et son adresse cliquable vers Google Maps.</p></div>
+      <div class="cities">${Object.entries(CITIES).map(([k,c])=>`<a class="city" href="#${k}">${photo(spotById(c.cover), c.name)}<span><b>${c.name}</b><small>${c.country} · ${S.loading?"30":n(k)} spots</small></span></a>`).join("")}</div>
+    </div></section>
+    <section class="band soft"><div class="wrap">
+      <div class="head"><h2>Selon vos envies.</h2><p class="muted" style="max-width:38ch">Explorez les 12 villes d'un coup, par catégorie ou par budget.</p></div>
+      <div class="moods">${MOODS.map(m=>`<a class="mood" href="#explorer" data-mood="${esc(m.k)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${m.i}</svg><b>${m.t}</b><span>${m.d}</span></a>`).join("")}</div>
+    </div></section>
+    <section class="band"><div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;align-items:center">
+      <div style="display:grid;gap:16px"><span class="eyebrow">Nouveau · agent IA</span><h2>Votre séjour,<br>jour par jour.</h2><p class="muted" style="max-width:46ch">Indiquez la ville, la durée, le budget et vos envies : le Planificateur compose un programme matin, après-midi et soir avec nos adresses, et l'itinéraire de chaque journée dans Google Maps.</p><div><a class="btn" href="#planificateur">Planifier mon séjour</a></div></div>
+      <div style="display:grid;gap:10px">${["Matin","Après-midi","Soir"].map((m,i)=>{ const s = spotById(["s25","s03","s31"][i]); return s ? `<div class="mini" style="grid-template-columns:72px minmax(0,1fr)"><div class="pic">${photo(s,"")}</div><div style="display:grid;gap:2px"><span style="font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--clay-ink)">${MOMENT_ICON[m]} ${m}</span><b>${esc(s.name)}</b><span>Paris · ${esc(s.cat)} · ${PRICE[s.price].label}</span></div></div>` : ""; }).join("")}</div>
     </div></section>
     <section class="band dark"><div class="wrap">
       <div class="head"><h2>Lire les tags.</h2><p class="muted" style="max-width:40ch">Un repère par adresse, pour savoir avant d'y aller si elle rentre dans votre budget. Prix indicatif par personne.</p></div>
@@ -349,115 +573,135 @@ function home(){
 }
 
 function cityView(key){
-  const c = CITIES[key], f = S.f;
-  return `<main class="wrap"><a class="back" href="#accueil">← Toutes les villes</a>
-  <h1 style="margin-top:16px">${c.name}.</h1>
-  <p class="lede">Nos adresses à ${c.name}, filtrées selon vos envies et votre budget. Touchez une adresse pour l'ouvrir dans Google Maps.</p>
-  <div id="cityFeature" style="margin-top:40px"></div>
-  <div class="ask-band"><p style="font-size:17px">Besoin d'un conseil pour ${c.name} ?</p><button class="ghost small" data-ask="Que me conseilles-tu à ${c.name} ?">Demander à l'assistant</button></div>
-  <div class="filters">
-    <fieldset><legend>Catégorie</legend>${CATS.map(x=>`<button class="chip" data-cat="${x}" aria-pressed="${f.cats.has(x)}">${x}</button>`).join("")}</fieldset>
-    <fieldset><legend>Prix</legend>${Object.keys(PRICE).map(p=>`<button class="chip" data-price="${p}" aria-pressed="${f.prices.has(p)}">${PRICE[p].label}</button>`).join("")}</fieldset>
-    <div class="field"><label for="q">Rechercher</label><input id="q" value="${esc(f.q)}" placeholder="Nom, quartier, rue…"></div>
-    <div class="field" style="flex:0 1 220px"><label for="sort">Trier</label><select id="sort">
-      <option value="pick" ${f.sort==="pick"?"selected":""}>Picks d'abord</option>
-      <option value="asc" ${f.sort==="asc"?"selected":""}>Prix croissant</option>
-      <option value="desc" ${f.sort==="desc"?"selected":""}>Prix décroissant</option></select></div>
-  </div>
-  <div id="results"></div></main>`;
+  const c = CITIES[key];
+  return `<section class="city-hero">${photo(spotById(c.cover), "")}<div class="wrap">
+      <a class="back" href="#accueil">← Toutes les villes</a>
+      <span class="eyebrow" style="color:rgba(255,255,255,.8)">${c.country}</span>
+      <h1>${c.name}.</h1>
+      <p>${esc(c.intro)}</p>
+    </div></section>
+  <main class="wrap" style="padding-top:40px">
+    <div id="cityFeature"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:20px 0;border-top:1px solid var(--pebble)">
+      <p style="font-size:17px">Pas sûr de quoi choisir à ${c.name} ?</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="small" data-plan-city="${key}">Planifier un séjour à ${c.name}</button><button type="button" class="ghost small" data-ask="Que me conseilles-tu à ${c.name} ? Donne-moi un mélange de lieux pour tous les budgets.">Demander à l'assistant</button></div>
+    </div>
+    ${filterBar(S.f, `<div class="field" style="flex:0 1 200px"><label for="sort">Trier</label><select id="sort">
+      <option value="pick" ${S.f.sort==="pick"?"selected":""}>Picks d'abord</option>
+      <option value="asc" ${S.f.sort==="asc"?"selected":""}>Prix croissant</option>
+      <option value="desc" ${S.f.sort==="desc"?"selected":""}>Prix décroissant</option></select></div>`)}
+    <div id="results"></div>
+  </main>`;
 }
 function renderResults(key){
   const el = document.getElementById("results"); if(!el) return;
   const fe = document.getElementById("cityFeature");
-  if(fe) fe.innerHTML = gate() ? "" : feature(spotById(CITIES[key].feature),"Le pick de la rédac à " + CITIES[key].name);
-  const g = gate(); if(g){ el.innerHTML = g; return; }
-  const f = S.f, q = f.q.trim().toLowerCase();
-  let list = S.spots.filter(s=>s.city===key
-    && (!f.cats.size || f.cats.has(s.cat))
-    && (!f.prices.size || f.prices.has(s.price))
-    && (!q || [s.name,s.hood,s.address].join(" ").toLowerCase().includes(q)));
+  if(fe) fe.innerHTML = (S.loading||S.error) ? "" : feature(spotById(CITIES[key].feature),"Le pick de la rédac à " + CITIES[key].name);
+  const g = gate(6); if(g){ el.innerHTML = g; return; }
+  let list = applyFilters(S.spots.filter(s=>s.city===key), S.f);
   const r = s => (PRICE[s.price]||{rank:9}).rank;
-  if(f.sort==="asc") list.sort((a,b)=>r(a)-r(b));
-  else if(f.sort==="desc") list.sort((a,b)=>r(b)-r(a));
+  if(S.f.sort==="asc") list.sort((a,b)=>r(a)-r(b));
+  else if(S.f.sort==="desc") list.sort((a,b)=>r(b)-r(a));
   else list.sort((a,b)=>(b.pick?1:0)-(a.pick?1:0));
-  const active = f.cats.size||f.prices.size||q;
-  el.innerHTML = `<div class="toolbar"><span>${list.length} spot${list.length>1?"s":""}</span>${active?'<button class="ghost small" id="reset">Effacer les filtres</button>':""}</div>` +
-    (list.length ? `<div class="grid">${list.map(card).join("")}</div>` : `<div class="empty">Aucun spot ne correspond à ces filtres. Essayez un autre prix ou une autre catégorie.</div>`);
+  const active = S.f.cats.size||S.f.prices.size||S.f.q.trim();
+  el.innerHTML = `<div class="toolbar"><span>${list.length} spot${list.length>1?"s":""}</span>${active?'<button type="button" class="ghost small" data-reset="f">Effacer les filtres</button>':""}</div>` +
+    (list.length ? `<div class="grid">${list.map(s=>card(s,false)).join("")}</div>` : `<div class="empty">Aucun spot ne correspond à ces filtres. Essayez un autre prix ou une autre catégorie.</div>`);
+}
+
+function exploreView(){
+  return `<main class="wrap"><h1>Explorer.</h1>
+    <p class="lede">Les ${S.loading?360:S.spots.length} adresses des 12 villes, à filtrer par ville, catégorie et budget.</p>
+    ${filterBar(S.ex, `<div class="field" style="flex:0 1 220px"><label for="exCity">Ville</label><select id="exCity"><option value="">Toutes les villes</option>${Object.entries(CITIES).map(([k,c])=>`<option value="${k}" ${S.ex.city===k?"selected":""}>${c.name}</option>`).join("")}</select></div>`)}
+    <div id="exResults"></div></main>`;
+}
+function renderExplore(){
+  const el = document.getElementById("exResults"); if(!el) return;
+  const g = gate(9); if(g){ el.innerHTML = g; return; }
+  const list = applyFilters(S.spots.filter(s=>!S.ex.city || s.city===S.ex.city), S.ex).sort((a,b)=>(b.pick?1:0)-(a.pick?1:0));
+  const shown = list.slice(0, S.ex.shown);
+  const active = S.ex.city||S.ex.cats.size||S.ex.prices.size||S.ex.q.trim();
+  el.innerHTML = `<div class="toolbar"><span>${list.length} spot${list.length>1?"s":""}</span>${active?'<button type="button" class="ghost small" data-reset="ex">Effacer les filtres</button>':""}</div>` +
+    (list.length ? `<div class="grid">${shown.map(s=>card(s,true)).join("")}</div>${list.length>shown.length?`<div class="more"><button type="button" class="ghost" id="showMore">Voir plus (${list.length-shown.length} restants)</button></div>`:""}` : `<div class="empty">Aucun spot ne correspond à ces filtres.</div>`);
 }
 
 function spotView(id){
   const s = spotById(id);
-  if(!s) return `<main class="wrap">${gate() || `<div class="empty">Ce spot n'existe pas. <a href="#accueil">Retour aux villes</a></div>`}</main>`;
+  if(!s) return `<main class="wrap">${gate(3) || `<div class="empty">Ce spot n'existe pas. <a href="#accueil">Retour aux villes</a></div>`}</main>`;
   const c = CITIES[s.city];
+  const others = S.spots.filter(x=>x.city===s.city && x.id!==s.id).sort((a,b)=>(b.cat===s.cat)-(a.cat===s.cat) || (b.pick?1:0)-(a.pick?1:0)).slice(0,3);
   return `<main class="wrap"><a class="back" href="#${s.city}">← Spots à ${c.name}</a>
   <div class="detail">
-    <div style="display:grid;gap:18px;min-width:0;align-content:start">
+    <div style="display:grid;gap:18px;min-width:0">
       <div class="pic">${photo(s)}</div>
       ${s.credit?`<p class="credit">Photo : ${/^https:\/\/commons\.wikimedia\.org\//.test(s.source||"")?`<a href="${esc(s.source)}" target="_blank" rel="noopener">${esc(s.credit)}</a>`:esc(s.credit)}</p>`:""}
-      ${s.pick?'<span class="pick">Le pick de la rédac</span>':''}
+      <span class="eyebrow">${esc(s.cat)} · ${esc(s.hood)} · ${c.name}${s.pick?" · Pick de la rédac":""}</span>
       <h1>${esc(s.name)}.</h1>
-      <div class="tags">${priceTag(s.price)}<span class="tag cat">${esc(s.cat)}</span><span class="tag cat">${esc(s.hood)}</span></div>
       <p class="lede" style="margin:0">${esc(s.desc)}</p>
       ${byLine(s)}
     </div>
     <aside class="facts">
       <dl>
         <div><dt>Adresse</dt><dd>${addrLink(s)}</dd></div>
-        <div><dt>Ville</dt><dd>${c.name}, ${c.country}</dd></div>
-        <div><dt>Catégorie</dt><dd>${esc(s.cat)}</dd></div>
         <div><dt>Budget</dt><dd>${PRICE[s.price].label} · ${PRICE[s.price].range} / pers.</dd></div>
+        <div><dt>Catégorie</dt><dd>${esc(s.cat)}</dd></div>
         ${s.tip?`<div><dt>Le conseil CityPick's</dt><dd>${esc(s.tip)}</dd></div>`:""}
       </dl>
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="${mapsUrl(s)}" target="_blank" rel="noopener">${PIN} Ouvrir dans Maps</a>${favBtn(s.id,S.favs.has(s.id))}</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="${mapsUrl(s)}" target="_blank" rel="noopener">${ICON.pin} Ouvrir dans Maps</a>${favBtn(s)}</div>
+      <button type="button" class="ghost small" style="justify-self:start;color:var(--on-dark);border-color:color-mix(in srgb,var(--on-dark) 45%,transparent)" data-ask="Que faire près de ${esc(s.name)} à ${c.name} ?">Que faire autour ?</button>
     </aside>
-  </div></main>`;
+  </div>
+  ${others.length?`<section style="margin-top:72px"><div class="head"><h2 style="font-size:37px">Aussi à ${c.name}.</h2><a class="btn ghost small" href="#${s.city}">Voir les 30 spots</a></div><div class="grid">${others.map(o=>card(o,false)).join("")}</div></section>`:""}
+  </main>`;
 }
 
-/* ---------- assistant IA ---------- */
+/* ---------- assistant IA (pop-up) ---------- */
 function miniCard(s){
-  return `<a class="mini" href="#spot-${esc(s.id)}"><div class="pic">${photo(s,"")}</div><div style="min-width:0;display:grid;gap:4px;align-content:start"><b>${esc(s.name)}</b><span>${esc(CITIES[s.city]?.name||"")} · ${esc(s.cat)}</span><div class="tags">${priceTag(s.price)}</div></div></a>`;
-}
-function chatHtml(){
-  if(!S.chat.length) return `<div class="msg bot"><div class="bubble">Bonjour ! Dites-moi où vous partez, ce qui vous fait envie et votre budget. Je vous propose des adresses du catalogue CityPick's.</div></div>`;
-  return S.chat.map(m=>{
-    if(m.role==="user") return `<div class="msg user"><div class="bubble">${esc(m.text)}</div></div>`;
-    const spots = (m.spots||[]).map(spotById).filter(Boolean);
-    return `<div class="msg ${m.error?"err":"bot"}"><div class="bubble">${esc(m.text)}</div>${spots.length?`<div class="minis">${spots.map(miniCard).join("")}</div>`:""}</div>`;
-  }).join("") + (S.chatBusy ? `<div class="msg bot"><div class="typing">L'assistant cherche des adresses…</div></div>` : "");
-}
-function assistantView(){
-  return `<main class="wrap"><h1>Assistant IA.</h1>
-  <p class="lede">Posez votre question comme à un ami qui connaît la ville. L'assistant choisit dans les ${S.spots.length||90} adresses du catalogue et respecte votre budget.</p>
-  <div class="suggest">${SUGGESTIONS.map(t=>`<button class="chip" data-ask="${esc(t)}">${esc(t)}</button>`).join("")}</div>
-  <div class="chat">
-    <div class="msgs" id="msgs" aria-live="polite">${chatHtml()}</div>
-    <form class="composer" id="chatForm">
-      <label for="chatInput" class="eyebrow" hidden>Votre question</label>
-      <input id="chatInput" maxlength="600" placeholder="Ex. : les meilleures activités à faire à Paris" autocomplete="off" value="${esc(S.chatDraft)}">
-      <button type="submit" ${S.chatBusy?"disabled":""}>Envoyer</button>
-      ${S.chat.length?`<button type="button" class="ghost" id="chatReset">Nouvelle conversation</button>`:""}
-    </form>
-  </div>
-  <p class="ai-note">Réponses générées par une IA (Google Gemini) à partir du catalogue CityPick's : elles peuvent contenir des erreurs. Vérifiez horaires et prix sur place. N'indiquez pas d'informations personnelles.</p></main>`;
+  return `<a class="mini" href="#spot-${esc(s.id)}"><div class="pic">${photo(s,"")}</div><div style="min-width:0;display:grid;gap:3px"><b>${esc(s.name)}</b><span>${esc(CITIES[s.city]?.name||"")} · ${esc(s.cat)} · ${PRICE[s.price]?.label||""}</span></div></a>`;
 }
 function renderChat(){
-  const el = document.getElementById("msgs"); if(!el) return;
-  el.innerHTML = chatHtml(); el.scrollTop = el.scrollHeight;
-  const btn = document.querySelector("#chatForm button[type=submit]"); if(btn) btn.disabled = S.chatBusy;
-  const reset = document.getElementById("chatReset");
-  if(!reset && S.chat.length && !S.chatBusy) route(true);
+  const el = document.getElementById("msgs");
+  let html = "";
+  if(!S.chat.length){
+    html = `<div class="msg bot"><div class="bubble">Bonjour ! Dites-moi où vous partez, ce qui vous fait envie et votre budget : je choisis pour vous dans les ${S.spots.length||360} adresses CityPick's.</div></div>
+    <div class="suggest">${SUGGESTIONS.map(t=>`<button type="button" class="chip" data-ask="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
+  } else {
+    html = S.chat.map(m=>{
+      if(m.role==="user") return `<div class="msg user"><div class="bubble">${esc(m.text)}</div></div>`;
+      const spots = (m.spots||[]).map(spotById).filter(Boolean);
+      return `<div class="msg ${m.error?"err":"bot"}"><div class="bubble">${esc(m.text)}</div>${spots.length?`<div class="minis">${spots.map(miniCard).join("")}</div>`:""}</div>`;
+    }).join("") + (S.chatBusy ? `<div class="msg bot"><div class="typing" aria-label="L'assistant écrit"><i></i><i></i><i></i></div></div>` : "");
+  }
+  el.innerHTML = html; el.scrollTop = el.scrollHeight;
+  document.querySelector("#chatForm button").disabled = S.chatBusy;
+}
+function openAI(focus){
+  S.aiOpen = true;
+  document.getElementById("aiPanel").hidden = false;
+  document.getElementById("aiFab").hidden = true;
+  document.getElementById("aiFab").setAttribute("aria-expanded","true");
+  renderChat();
+  if(focus!==false) document.getElementById("chatInput").focus();
+}
+function closeAI(){
+  S.aiOpen = false;
+  document.getElementById("aiPanel").hidden = true;
+  const fab = document.getElementById("aiFab"); fab.hidden = false; fab.setAttribute("aria-expanded","false"); fab.focus();
 }
 async function askAssistant(text){
   text = String(text||"").trim().slice(0,600);
   if(!text || S.chatBusy) return;
-  S.chat.push({role:"user", text}); S.chatBusy = true; S.chatDraft = "";
-  if(route0()!=="assistant"){ location.hash = "assistant"; } else { const i=document.getElementById("chatInput"); if(i) i.value=""; renderChat(); }
+  openAI(false);
+  S.chat.push({role:"user", text}); S.chatBusy = true;
+  document.getElementById("chatInput").value = "";
+  renderChat();
   const history = S.chat.filter(m=>!m.error).slice(-8).map(m=>({role:m.role, text:m.text}));
   try{
-    const r = await fetch("/api/chat", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({messages:history})});
+    const call = () => fetch("/api/chat", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({messages:history})});
+    let r = await call();
+    if(r.status===502 || r.status===504) r = await call();
     let data = null; try{ data = await r.json(); }catch(e){}
     if(!r.ok || !data || data.error){
-      const msg = data && data.error ? data.error : (r.status===404 ? "L'assistant n'est pas disponible ici : il fonctionne une fois le site publié sur Netlify." : "L'assistant n'a pas pu répondre. Réessayez.");
+      const msg = data && data.error ? data.error : (r.status===404 ? "L'assistant n'est pas disponible ici : il fonctionne sur le site publié sur Netlify." : "L'assistant n'a pas pu répondre. Réessayez.");
       S.chat.push({role:"assistant", text:msg, error:true});
     } else {
       S.chat.push({role:"assistant", text:String(data.reply||""), spots:Array.isArray(data.spots)?data.spots:[]});
@@ -465,20 +709,141 @@ async function askAssistant(text){
   }catch(e){
     S.chat.push({role:"assistant", text:"Impossible de joindre l'assistant. Vérifiez votre connexion et réessayez.", error:true});
   }
-  S.chatBusy = false;
-  if(route0()==="assistant") renderChat();
-  const i=document.getElementById("chatInput"); if(i) i.focus();
+  S.chatBusy = false; renderChat();
+  document.getElementById("chatInput").focus();
+}
+
+/* ---------- agent « Planificateur de séjour » ---------- */
+const MOMENT_ICON = {"Matin":"☀︎","Après-midi":"◐","Soir":"☾"};
+const budgetOpts = sel => Object.keys(PRICE).map(p=>`<option value="${p}" ${p===sel?"selected":""}>${p==="p3"?"€€€ · sans limite":PRICE[p].label+" · "+PRICE[p].range}</option>`).join("");
+function planView(){
+  const P = S.plan;
+  return `<main class="wrap"><span class="eyebrow">Agent IA · Planificateur de séjour</span>
+  <h1 style="margin-top:10px">Votre séjour, jour par jour.</h1>
+  <p class="lede">Choisissez une ville, une durée, un budget et vos envies : l'agent compose un programme matin, après-midi et soir, uniquement avec des adresses CityPick's. Il ne réserve et ne paie jamais rien à votre place.</p>
+  <div class="planner">
+    <form class="plan-form" id="planForm" novalidate>
+      <div class="field"><label for="plCity">Ville</label><select id="plCity">${cityOpts(P.city)}</select></div>
+      <div class="two">
+        <div class="field" style="min-width:0"><label for="plDays">Durée</label><select id="plDays">${[1,2,3,4,5].map(n=>`<option value="${n}" ${n===P.days?"selected":""}>${n} jour${n>1?"s":""}</option>`).join("")}</select></div>
+        <div class="field" style="min-width:0"><label for="plBudget">Budget max / lieu</label><select id="plBudget">${budgetOpts(P.budget)}</select></div>
+      </div>
+      <fieldset><legend>Envies</legend>${CATS.map(c=>`<button type="button" class="chip" data-interest="${c}" aria-pressed="${P.interests.has(c)}">${c}</button>`).join("")}</fieldset>
+      <div class="field"><label for="plNote">Une précision ? (facultatif)</label><textarea id="plNote" maxlength="200" placeholder="Ex. : on adore les vues panoramiques, pas de musées le dimanche…">${esc(P.note)}</textarea></div>
+      <button type="submit" ${P.busy?"disabled":""}>${P.busy?"L'agent prépare votre séjour…":"Créer mon itinéraire"}</button>
+      <p class="muted" style="font-size:13px;line-height:1.45">Itinéraire généré par IA (Google Gemini) à partir du catalogue CityPick's. Vérifiez horaires et prix, et réservez vous-même si besoin.</p>
+    </form>
+    <div id="planOut" aria-live="polite"></div>
+  </div></main>`;
+}
+function dayMapsUrl(spots){
+  const q = s => [s.name, s.address, CITIES[s.city]?.name].filter(Boolean).join(", ");
+  if(spots.length===1) return mapsUrl(spots[0]);
+  const u = new URL("https://www.google.com/maps/dir/");
+  u.searchParams.set("api","1"); u.searchParams.set("origin", q(spots[0])); u.searchParams.set("destination", q(spots[spots.length-1]));
+  if(spots.length>2) u.searchParams.set("waypoints", spots.slice(1,-1).map(q).join("|"));
+  u.searchParams.set("travelmode","walking");
+  return u.toString();
+}
+function renderPlan(){
+  const el = document.getElementById("planOut"); if(!el) return;
+  const P = S.plan;
+  if(P.busy){ el.innerHTML = `<div class="plan-head"><span class="eyebrow" style="color:var(--on-dark-muted)">En cours</span><h2 style="font-size:30px">L'agent compose votre séjour à ${CITIES[P.city].name}…</h2><p class="muted">Il choisit parmi les 30 adresses de la ville, dans votre budget. Cela prend quelques secondes.</p></div><div class="grid">${skeletons(3)}</div>`; return; }
+  if(P.error){ el.innerHTML = `<div class="plan-empty" style="border-color:var(--clay)"><b style="color:var(--ink)">L'itinéraire n'a pas pu être créé.</b><span>${esc(P.error)}</span><div><button type="button" class="ghost small" data-plan-go>Réessayer</button></div></div>`; return; }
+  const R = P.result;
+  if(!R){ el.innerHTML = `<div class="plan-empty"><b style="color:var(--ink);font-size:20px">Votre itinéraire apparaîtra ici.</b><span>Exemple : 2 jours à Rome, budget €€, envies Culture et Restaurant. L'agent répartit les lieux entre le matin, l'après-midi et le soir, et regroupe les quartiers proches.</span></div>`; return; }
+  const c = CITIES[R.city];
+  el.innerHTML = `<div class="plan-head">
+      <span class="eyebrow" style="color:var(--on-dark-muted)">${R.days} jour${R.days>1?"s":""} à ${c.name} · budget ${PRICE[R.budget].label}</span>
+      <h2 style="font-size:clamp(28px,4vw,40px)">Votre séjour à ${c.name}.</h2>
+      ${R.intro?`<p style="font-size:18px">${esc(R.intro)}</p>`:""}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn small" id="copyPlan">Copier le programme</button><button type="button" class="btn ghost small" data-plan-go>Proposer un autre programme</button></div>
+    </div>
+    ${R.plan.map(d=>{
+      const spots = d.slots.map(s=>spotById(s.spot)).filter(Boolean);
+      return `<section class="day"><span class="eyebrow">Jour ${d.day}</span><h3>${esc(d.theme)}</h3>
+        ${d.slots.map(st=>{ const s = spotById(st.spot); if(!s) return ""; return `<div class="step">
+          <span class="when">${MOMENT_ICON[st.moment]||""} ${esc(st.moment)}</span>
+          <a class="pic" href="#spot-${esc(s.id)}" aria-hidden="true" tabindex="-1">${photo(s,"")}</a>
+          <div style="min-width:0"><h4><a href="#spot-${esc(s.id)}">${esc(s.name)}</a></h4>
+            <p>${esc(st.why)}</p>
+            <div class="row">${priceTag(s.price)}<span class="tag cat">${esc(s.cat)}</span>${addrLink(s)}</div></div>
+        </div>`; }).join("")}
+        ${spots.length>1?`<a class="btn ghost small" style="margin-top:16px" href="${dayMapsUrl(spots)}" target="_blank" rel="noopener">${ICON.pin} Itinéraire du jour dans Maps</a>`:""}
+      </section>`;
+    }).join("")}
+    ${R.tips&&R.tips.length?`<section class="day"><span class="eyebrow">Bon à savoir</span><ul style="margin:10px 0 0;padding-left:20px;display:grid;gap:6px">${R.tips.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></section>`:""}`;
+}
+function planAsText(){
+  const R = S.plan.result; if(!R) return "";
+  const c = CITIES[R.city];
+  let t = `Mon séjour à ${c.name} (${R.days} jour${R.days>1?"s":""}) — CityPick's\n`;
+  if(R.intro) t += R.intro + "\n";
+  R.plan.forEach(d=>{ t += `\nJour ${d.day} · ${d.theme}\n`; d.slots.forEach(st=>{ const s = spotById(st.spot); if(s) t += `- ${st.moment} : ${s.name} (${PRICE[s.price].label}) · ${s.address}\n  ${st.why}\n`; }); });
+  if(R.tips&&R.tips.length) t += `\nBon à savoir :\n` + R.tips.map(x=>"- "+x).join("\n") + "\n";
+  return t;
+}
+async function generatePlan(){
+  const P = S.plan;
+  if(P.busy) return;
+  P.busy = true; P.error = ""; P.result = null;
+  if(route0()!=="planificateur") location.hash = "planificateur"; else route(true);
+  renderPlan();
+  /* l'agent construit le séjour une journée à la fois : chaque appel reste court, et les jours s'affichent au fur et à mesure */
+  const R = {city:P.city, days:P.days, budget:P.budget, intro:"", plan:[], tips:[]};
+  for(let d = 1; d <= P.days; d++){
+    const used = R.plan.flatMap(x=>x.slots.map(s=>s.spot));
+    const body = JSON.stringify({city:P.city, days:P.days, day:d, budget:P.budget, interests:[...P.interests], note:P.note, exclude:used, themes:R.plan.map(x=>x.theme)});
+    let data = null, r = null;
+    try{
+      const call = () => fetch("/api/plan", {method:"POST", headers:{"content-type":"application/json"}, body});
+      r = await call();
+      if(r.status===502 || r.status===504) r = await call();
+      try{ data = await r.json(); }catch(e){}
+    }catch(e){ data = {error:"Impossible de joindre le planificateur. Vérifiez votre connexion et réessayez."}; }
+    if(!r || !r.ok || !data || data.error){
+      P.error = (data && data.error) || (r && r.status===404 ? "Le planificateur fonctionne sur le site publié sur Netlify." : "Le planificateur n'a pas pu répondre. Réessayez.");
+      if(R.plan.length) P.error = `Jour ${d} : ${P.error}`;
+      break;
+    }
+    if(d===1) R.intro = data.intro || "";
+    R.plan.push({day:d, theme:data.theme, slots:data.slots});
+    if(d===P.days) R.tips = data.tips || [];
+    P.result = {...R, days:R.plan.length};
+    if(route0()==="planificateur") renderPlanProgress(d < P.days ? d+1 : 0);
+  }
+  P.busy = false;
+  if(P.result && P.error){ const err = P.error; P.error = ""; if(route0()==="planificateur"){ route(true); renderPlan(); document.getElementById("planOut")?.insertAdjacentHTML("beforeend", `<div class="plan-empty" style="border-color:var(--clay)"><span>${esc(err)}</span><div><button type="button" class="ghost small" data-plan-go>Recommencer</button></div></div>`); } return; }
+  if(route0()==="planificateur"){ route(true); renderPlan(); }
+}
+/* affiche les jours déjà prêts + une ligne « jour suivant en préparation » */
+function renderPlanProgress(nextDay){
+  const keep = S.plan.busy; S.plan.busy = false; renderPlan(); S.plan.busy = keep;
+  if(nextDay) document.getElementById("planOut")?.insertAdjacentHTML("beforeend", `<div class="plan-empty"><b style="color:var(--ink)">Jour ${nextDay} en préparation…</b><div class="grid">${skeletons(1)}</div></div>`);
+}
+function setAiTab(tab){
+  S.aiTab = tab;
+  document.getElementById("tabChat").setAttribute("aria-selected", tab==="chat");
+  document.getElementById("tabPlan").setAttribute("aria-selected", tab==="plan");
+  document.getElementById("aiPlanForm").hidden = tab!=="plan";
+  document.getElementById("msgs").hidden = tab!=="chat";
+  document.getElementById("chatForm").hidden = tab!=="chat";
+  if(tab==="plan"){
+    document.getElementById("apCity").innerHTML = cityOpts(CITIES[route0()] ? route0() : (spotById(route0().slice(5))?.city || S.plan.city));
+    document.getElementById("apDays").value = String(S.plan.days); document.getElementById("apBudget").value = S.plan.budget;
+  }
 }
 
 /* ---------- favoris, propositions, modération ---------- */
 function favView(){
   const head = `<main class="wrap"><h1>Mes favoris.</h1><p class="lede">${LIVE?"Les adresses que vous avez enregistrées. Elles sont liées à votre compte : personne d'autre ne les voit.":"Mode démo : vos favoris sont gardés dans ce navigateur."}</p><div style="margin-top:40px">`;
-  if(gate()) return head + gate() + `</div></main>`;
+  if(gate()) return head + gate(3) + `</div></main>`;
   if(!canFav()) return head + needAccount("enregistrer des favoris") + `</div></main>`;
   const list = S.spots.filter(s=>S.favs.has(s.id));
-  return head + (list.length ? `<div class="grid">${list.map(card).join("")}</div>` : `<div class="empty">Aucun favori pour l'instant. Ouvrez une ville et touchez ♡ Enregistrer sur un spot.<br><br><a class="btn" href="#accueil">Choisir une ville</a></div>`) + `</div></main>`;
+  return head + (list.length ? `<div class="grid">${list.map(s=>card(s,true)).join("")}</div>` : `<div class="empty">Aucun favori pour l'instant. Touchez le cœur sur une adresse pour l'enregistrer.<br><br><a class="btn" href="#explorer">Explorer les adresses</a></div>`) + `</div></main>`;
 }
 const STATUS = {pending:"En attente", approved:"Publiée", rejected:"Refusée"};
+const cityOpts = sel => Object.entries(CITIES).map(([k,c])=>`<option value="${k}" ${k===sel?"selected":""}>${c.name}</option>`).join("");
 function propItem(p, admin){
   const c = CITIES[p.city];
   return `<div class="item"><div>
@@ -487,7 +852,7 @@ function propItem(p, admin){
       ${p.address?`<span class="muted" style="font-size:15px">${esc(p.address)}</span>`:""}
       ${admin?`<span class="by">Proposé par ${esc(S.profiles[p.user_id]||"un voyageur")}</span><span class="muted" style="font-size:16px">${esc(p.desc)}</span>`:""}
     </div>
-    ${admin && p.status==="pending" ? `<div class="acts"><button class="small" data-approve="${esc(p.id)}">Publier</button><button class="ghost small" data-reject="${esc(p.id)}">Refuser</button></div>` : ""}
+    ${admin && p.status==="pending" ? `<div class="acts"><button type="button" class="small" data-approve="${esc(p.id)}">Publier</button><button type="button" class="ghost small" data-reject="${esc(p.id)}">Refuser</button></div>` : ""}
   </div>`;
 }
 function proposeView(){
@@ -497,7 +862,7 @@ function proposeView(){
     <div class="field"><label for="pName">Nom du spot</label><input id="pName" maxlength="80"></div>
     <div class="field"><label for="pAddr">Adresse</label><input id="pAddr" maxlength="120" placeholder="Numéro, rue, code postal"></div>
     <div class="two">
-      <div class="field"><label for="pCity">Ville</label><select id="pCity">${Object.entries(CITIES).map(([k,c])=>`<option value="${k}">${c.name}</option>`).join("")}</select></div>
+      <div class="field"><label for="pCity">Ville</label><select id="pCity">${cityOpts("paris")}</select></div>
       <div class="field"><label for="pHood">Quartier</label><input id="pHood" maxlength="60"></div>
       <div class="field"><label for="pCat">Catégorie</label><select id="pCat">${CATS.map(x=>`<option>${x}</option>`).join("")}</select></div>
       <div class="field"><label for="pPrice">Tag de prix</label><select id="pPrice">${Object.keys(PRICE).map(p=>`<option value="${p}">${PRICE[p].label} · ${PRICE[p].range}</option>`).join("")}</select></div>
@@ -506,7 +871,7 @@ function proposeView(){
     <p class="err" id="pErr" hidden></p>
     <button type="submit" style="justify-self:start">Envoyer la proposition</button>
   </form>
-  <h2 style="margin-top:64px">Mes propositions.</h2>
+  <h2 style="margin-top:64px;font-size:37px">Mes propositions.</h2>
   <div id="myProps"></div></main>`;
 }
 function renderMyProps(){
@@ -523,10 +888,9 @@ function modView(){
 }
 
 /* ---------- compte ---------- */
-const cityOpts = sel => Object.entries(CITIES).map(([k,c])=>`<option value="${k}" ${k===sel?"selected":""}>${c.name}</option>`).join("");
 function accountView(){
   const head = `<main class="wrap"><h1>Mon compte.</h1>`;
-  if(!LIVE) return head + `<p class="lede">Les comptes ne sont pas encore activés : le site tourne en mode démo. Ils s'activent dès que Supabase est branché dans config.js.</p></main>`;
+  if(!LIVE) return head + `<p class="lede">Les comptes ne sont pas activés sur cette version (mode démo).</p></main>`;
   if(S.recovery) return head + `<p class="lede">Choisissez votre nouveau mot de passe.</p>
     <form class="form" id="newPassForm" novalidate>
       <div class="field"><label for="npPass">Nouveau mot de passe</label><input id="npPass" type="password" minlength="8" autocomplete="new-password"></div>
@@ -535,8 +899,8 @@ function accountView(){
     const t = S.authTab;
     return head + `<p class="lede">Connectez-vous pour enregistrer vos favoris et proposer des adresses.</p>
     <div class="tabs" role="tablist">
-      <button class="chip" role="tab" data-tab="login" aria-pressed="${t==="login"}">Connexion</button>
-      <button class="chip" role="tab" data-tab="signup" aria-pressed="${t==="signup"}">Inscription</button>
+      <button type="button" class="chip" role="tab" data-tab="login" aria-pressed="${t==="login"}">Connexion</button>
+      <button type="button" class="chip" role="tab" data-tab="signup" aria-pressed="${t==="signup"}">Inscription</button>
     </div>
     ${t==="login" ? `<form class="form" id="loginForm" novalidate>
       <div class="field"><label for="lEmail">E-mail</label><input id="lEmail" type="email" autocomplete="email"></div>
@@ -550,7 +914,7 @@ function accountView(){
       </div>
       <div class="field"><label for="sEmail">E-mail</label><input id="sEmail" type="email" autocomplete="email"></div>
       <div class="field"><label for="sPass">Mot de passe (8 caractères minimum)</label><input id="sPass" type="password" minlength="8" autocomplete="new-password"></div>
-      <label style="display:flex;gap:10px;align-items:flex-start;font-size:16px"><input type="checkbox" id="sConsent" style="margin-top:5px"> <span>J'accepte que CityPick's enregistre mon e-mail, mon pseudo, mes favoris et mes propositions pour faire fonctionner le service. Je peux supprimer mon compte et ces données à tout moment.</span></label>
+      <label style="display:flex;gap:10px;align-items:flex-start;font-size:16px"><input type="checkbox" id="sConsent" style="margin-top:5px"> <span>J'accepte que CityPick's enregistre mon e-mail, mon pseudo, mes favoris et mes propositions pour faire fonctionner le service, comme décrit dans la <a href="#confidentialite">politique de confidentialité</a>. Je peux supprimer mon compte et ces données à tout moment.</span></label>
       <p class="err" id="sErr" hidden></p><p class="ok" id="sOk" hidden></p>
       <button type="submit" style="justify-self:start">Créer mon compte</button>
     </form>`}</main>`;
@@ -566,58 +930,116 @@ function accountView(){
       <p class="err" id="eErr" hidden></p>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="submit">Enregistrer</button><button type="button" class="ghost" data-logout>Se déconnecter</button></div>
     </form>
-    <div style="margin-top:64px;border-top:1px solid var(--pebble);padding-top:24px;display:grid;gap:12px;max-width:720px">
+    <div style="margin-top:56px;border-top:1px solid var(--pebble);padding-top:24px;display:grid;gap:12px;max-width:720px">
+      <h2 style="font-size:30px">Mes données.</h2>
+      <p class="muted">Enregistré pour votre compte : e-mail, pseudo, ville préférée, ${S.favs.size} favori${S.favs.size>1?"s":""} et ${S.myProps.length} proposition${S.myProps.length>1?"s":""}. Détails dans la <a href="#confidentialite">politique de confidentialité</a>.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="ghost small" id="exportData">Télécharger mes données</button></div>
+    </div>
+    <div style="margin-top:40px;border-top:1px solid var(--pebble);padding-top:24px;display:grid;gap:12px;max-width:720px">
       <h2 style="font-size:30px">Supprimer mon compte.</h2>
-      <p class="muted">Supprime votre compte, votre e-mail, vos ${S.favs.size} favori${S.favs.size>1?"s":""} et vos ${S.myProps.length} proposition${S.myProps.length>1?"s":""}. Les spots déjà publiés restent dans le catalogue.</p>
+      <p class="muted">Supprime définitivement votre compte, votre e-mail, vos favoris et vos propositions. Les spots déjà publiés restent dans le catalogue.</p>
       <div id="delZone"><button type="button" class="ghost" data-del-ask>Supprimer mon compte</button></div>
     </div></main>`;
 }
+
+/* ---------- pages d'information ---------- */
 function aboutView(){
   return `<main class="wrap"><div class="prose"><h1>À propos.</h1>
-  <p class="lede" style="margin:0">CityPick's réunit les bonnes adresses d'Europe au même endroit, avec un repère simple : le prix.</p>
-  <p>On prépare un city-break en piochant des idées sur TikTok, Instagram, Google Maps et des blogs, sans savoir si l'adresse rentre dans le budget. CityPick's classe chaque spot par ville, par catégorie et par tag de prix, et chaque adresse s'ouvre directement dans Google Maps.</p>
-  <h2 style="font-size:37px;margin-top:24px">L'assistant IA.</h2>
-  <p>L'assistant comprend des questions en langage naturel (« un resto pas cher à Rome ») et répond avec des adresses du catalogue. Il utilise le modèle Gemini de Google, interrogé depuis notre serveur : la clé d'accès n'est jamais visible dans le navigateur. Il ne recommande que des adresses du catalogue et peut se tromper : vérifiez avant d'y aller.</p>
-  <h2 style="font-size:37px;margin-top:24px">Vos données.</h2>
-  <p>Avec un compte, CityPick's enregistre votre e-mail, votre pseudo, votre ville préférée, vos favoris et vos propositions, uniquement pour faire fonctionner le service. Vos favoris restent privés ; vos propositions ne sont lues que par l'équipe qui les modère. Vous pouvez supprimer votre compte et toutes ces données depuis Mon compte. Les questions posées à l'assistant ne sont pas enregistrées par CityPick's.</p>
-  <h2 style="font-size:37px;margin-top:24px">Les photos.</h2>
-  <p>Les photos viennent de Wikimedia Commons, sous licence libre. L'auteur et la licence sont indiqués sur chaque fiche. Les adresses sans photo libre affichent leurs initiales.</p></div></main>`;
+  <p class="lede" style="margin:0">CityPick's réunit les meilleures adresses de 12 villes d'Europe, avec un repère simple : le prix.</p>
+  <p>On prépare un city-break en piochant des idées sur TikTok, Instagram, Google Maps et des blogs, sans savoir si l'adresse rentre dans le budget. CityPick's sélectionne 30 adresses par ville, classées par catégorie et par tag de prix, chacune avec sa photo, une description et un conseil pratique. Chaque adresse s'ouvre directement dans Google Maps.</p>
+  <h2>L'assistant IA.</h2>
+  <p>L'assistant, en bas à droite de chaque page, comprend des questions en langage naturel (« un resto pas cher à Rome ») et répond avec des adresses du catalogue. Il utilise le modèle Gemini de Google, interrogé depuis notre serveur : la clé d'accès n'est jamais visible dans le navigateur. Il ne recommande que des adresses du catalogue et peut se tromper : vérifiez avant d'y aller.</p>
+  <h2>Les photos.</h2>
+  <p>Toutes les photos viennent de Wikimedia Commons, sous licence libre. L'auteur et la licence sont indiqués sur chaque fiche, avec un lien vers la photo d'origine.</p>
+  <h2>Les tags de prix.</h2>
+  <ul>${Object.keys(PRICE).map(p=>`<li><b>${PRICE[p].label}</b> : ${PRICE[p].range} par personne</li>`).join("")}</ul>
+  </div></main>`;
+}
+function privacyView(){
+  const mail = (CFG.CONTACT_EMAIL||"").trim();
+  const contact = mail ? `par e-mail à <a href="mailto:${esc(mail)}">${esc(mail)}</a>` : `depuis la page <a href="#compte">Mon compte</a>`;
+  return `<main class="wrap"><div class="prose">
+  <h1>Confidentialité.</h1>
+  <p class="lede" style="margin:0">Comment CityPick's utilise vos données personnelles, conformément au Règlement général sur la protection des données (RGPD).</p>
+  <h2>Qui est responsable ?</h2>
+  <p>CityPick's est un projet étudiant réalisé dans le cadre de la formation Vibe Coding &amp; A2A (Jedy Formation). L'équipe du projet est responsable du traitement. Vous pouvez nous contacter ${contact}.</p>
+  <h2>Quelles données ?</h2>
+  <ul>
+    <li><b>Sans compte</b> : aucune donnée personnelle n'est collectée. Votre choix de thème (clair ou sombre) est gardé dans votre navigateur.</li>
+    <li><b>Avec un compte</b> : adresse e-mail, mot de passe (chiffré, nous n'y avons pas accès), pseudo, ville préférée, date de votre consentement, vos favoris et vos propositions d'adresses.</li>
+    <li><b>Assistant IA</b> : vos questions sont transmises à Google (Gemini) pour générer la réponse. CityPick's ne les enregistre pas. N'y indiquez pas d'informations personnelles.</li>
+  </ul>
+  <h2>Pourquoi ?</h2>
+  <p>Uniquement pour faire fonctionner le service : vous connecter, garder vos favoris, recevoir et modérer vos propositions, répondre à vos questions. La base légale est votre consentement, donné à l'inscription, et l'exécution du service que vous demandez. Aucune donnée n'est vendue, ni utilisée pour de la publicité.</p>
+  <h2>Combien de temps ?</h2>
+  <p>Vos données sont conservées tant que votre compte existe. Quand vous le supprimez, l'e-mail, le profil, les favoris et les propositions sont effacés immédiatement. Les spots déjà publiés restent dans le catalogue, avec seulement votre pseudo.</p>
+  <h2>Qui y a accès ?</h2>
+  <ul>
+    <li>Vos favoris : vous seul.</li>
+    <li>Vos propositions : vous et l'équipe de modération.</li>
+    <li>Nos prestataires techniques : Supabase (base de données et comptes), Netlify (hébergement du site), Google (assistant IA Gemini). Certains peuvent traiter des données hors de l'Union européenne, avec les garanties prévues par le RGPD.</li>
+  </ul>
+  <h2>Cookies et stockage.</h2>
+  <p>Aucun cookie publicitaire ni de mesure d'audience. Le site utilise seulement le stockage de votre navigateur pour votre thème et, si vous êtes connecté, pour garder votre session ouverte.</p>
+  <h2>Vos droits.</h2>
+  <p>Vous pouvez accéder à vos données, les corriger, les télécharger (portabilité) et les supprimer à tout moment depuis <a href="#compte">Mon compte</a>. Vous pouvez aussi retirer votre consentement en supprimant votre compte, et adresser une réclamation à la CNIL (cnil.fr).</p>
+  <h2 id="mentions">Mentions légales.</h2>
+  <p>Éditeur : l'équipe CityPick's, projet étudiant non commercial. Hébergement : Netlify, Inc. (site) et Supabase, Inc. (base de données). Photos : Wikimedia Commons, sous licences libres indiquées sur chaque fiche. Les adresses, horaires et prix sont donnés à titre indicatif.</p>
+  </div></main>`;
 }
 
 /* ================= routage ================= */
 function renderWho(){
-  const el = document.getElementById("who");
   document.getElementById("favCount").textContent = canFav() ? S.favs.size : 0;
   document.getElementById("modLink").hidden = !S.isAdmin;
-  if(!LIVE){ el.innerHTML = `<span class="demo-flag" title="Supabase n'est pas encore branché">Mode démo</span>`; return; }
-  if(isIn()){ el.innerHTML = `<span></span>`; el.querySelector("span").textContent = S.profile.pseudo; return; }
-  el.innerHTML = S.user ? "" : `<a class="btn small" href="#compte">Se connecter</a>`;
+  const who = document.getElementById("who");
+  who.textContent = isIn() ? S.profile.pseudo : "";
+  document.getElementById("accountLink").textContent = isIn() ? "Mon compte" : (LIVE ? "Se connecter" : "Mon compte");
 }
 function route(keepScroll){
-  const h = route0(), app = document.getElementById("app");
+  let h = route0(), app = document.getElementById("app");
   let nav = "accueil";
+  if(h==="assistant"){ openAI(); history.replaceState(null,"","#accueil"); h="accueil"; }
   if(h==="favoris"){ app.innerHTML = favView(); nav="favoris"; }
-  else if(h==="assistant"){ app.innerHTML = assistantView(); nav="assistant"; const el=document.getElementById("msgs"); if(el) el.scrollTop = el.scrollHeight; }
+  else if(h==="explorer"){ app.innerHTML = exploreView(); renderExplore(); nav="explorer"; }
+  else if(h==="planificateur"){ app.innerHTML = planView(); renderPlan(); nav="planificateur"; }
   else if(h==="proposer"){ app.innerHTML = proposeView(); renderMyProps(); nav="proposer"; }
   else if(h==="moderation"){ app.innerHTML = modView(); nav="moderation"; }
   else if(h==="a-propos"){ app.innerHTML = aboutView(); nav="a-propos"; }
+  else if(h==="confidentialite" || h==="confidentialite-mentions"){ app.innerHTML = privacyView(); nav=""; }
   else if(h==="compte"){ app.innerHTML = accountView(); nav="compte"; }
   else if(h.startsWith("spot-")){ app.innerHTML = spotView(h.slice(5)); nav=""; }
-  else if(CITIES[h]){ app.innerHTML = cityView(h); renderResults(h); }
+  else if(CITIES[h]){ app.innerHTML = cityView(h); renderResults(h); nav=""; }
   else { app.innerHTML = home(); }
   document.querySelectorAll("[data-nav]").forEach(a=>{ if(a.dataset.nav===nav) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   renderWho();
-  if(!keepScroll) window.scrollTo(0,0);
+  document.getElementById("links").classList.remove("open");
+  document.getElementById("burger").setAttribute("aria-expanded","false");
+  if(!keepScroll){
+    if(h==="confidentialite-mentions"){ const m=document.getElementById("mentions"); if(m) m.scrollIntoView(); }
+    else window.scrollTo(0,0);
+  }
 }
 /* rafraîchit sans effacer un formulaire en cours de saisie */
 function refresh(){
   const h = route0();
   renderWho();
+  if(S.aiOpen) renderChat();
   if(CITIES[h]) return renderResults(h);
+  if(h==="explorer") return renderExplore();
+  if(h==="planificateur") return renderPlan();
   if(h==="proposer" && document.getElementById("propForm")) return renderMyProps();
-  if(h==="assistant") return;
   if(h==="compte" && document.querySelector("#app form")) return;
   route(true);
+}
+function updateHearts(id){
+  const on = S.favs.has(id);
+  document.querySelectorAll(`[data-fav="${CSS.escape(id)}"]`).forEach(b=>{
+    b.setAttribute("aria-pressed", on);
+    if(b.classList.contains("heart")){ b.innerHTML = on?ICON.heart:ICON.heartLine; b.setAttribute("aria-label",(on?"Retirer des favoris":"Ajouter aux favoris")); }
+    else { b.textContent = on?"♥ Enregistré":"♡ Enregistrer"; b.className = on?"":"ghost"; }
+  });
+  renderWho();
 }
 
 /* ================= données ================= */
@@ -661,15 +1083,16 @@ async function loadUserData(){
 
 /* ================= actions ================= */
 async function toggleFav(id){
-  if(!canFav()) return;
+  if(!canFav()){ toast("Connectez-vous pour enregistrer vos favoris"); location.hash = "compte"; return; }
   const on = !S.favs.has(id);
   on ? S.favs.add(id) : S.favs.delete(id);
-  refresh();
+  updateHearts(id);
+  if(route0()==="favoris") route(true);
   toast(on?"Ajouté à vos favoris":"Retiré de vos favoris");
   if(!LIVE){ demoFavsSave(); return; }
   const q = on ? sb.from("favorites").insert({user_id:S.user.id, spot_id:id}) : sb.from("favorites").delete().eq("user_id",S.user.id).eq("spot_id",id);
   const { error } = await q;
-  if(error){ on ? S.favs.delete(id) : S.favs.add(id); refresh(); toast("Impossible d'enregistrer le favori. Réessayez."); }
+  if(error){ on ? S.favs.delete(id) : S.favs.add(id); updateHearts(id); toast("Impossible d'enregistrer le favori. Réessayez."); }
 }
 async function moderate(pid, approve){
   const p = S.allProps.find(x=>x.id===pid); if(!p || p.status!=="pending") return;
@@ -681,6 +1104,12 @@ async function moderate(pid, approve){
   if(error){ toast("L'action n'a pas abouti. Réessayez."); return; }
   toast(approve?"Spot publié dans le catalogue":"Proposition refusée");
   await Promise.all([loadSpots(), loadUserData()]);
+}
+function exportData(){
+  const data = { exporte_le: new Date().toISOString(), email: S.user.email, profil: S.profile, favoris: [...S.favs].map(id=>({id, nom: spotById(id)?.name||id})), propositions: S.myProps };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "mes-donnees-citypicks.json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
 }
 const authMsg = e => {
   const m = (e && e.message || "").toLowerCase();
@@ -694,16 +1123,36 @@ const authMsg = e => {
 const showMsg = (id, txt) => { const el=document.getElementById(id); if(el){ el.hidden=!txt; el.textContent=txt||""; } };
 
 /* ================= événements ================= */
+document.getElementById("aiFab").addEventListener("click", ()=>openAI());
+document.getElementById("aiClose").addEventListener("click", closeAI);
+document.getElementById("aiReset").addEventListener("click", ()=>{ if(S.chatBusy) return; S.chat=[]; renderChat(); document.getElementById("chatInput").focus(); });
+document.getElementById("burger").addEventListener("click", e=>{
+  const l = document.getElementById("links"); const open = !l.classList.contains("open");
+  l.classList.toggle("open", open); e.currentTarget.setAttribute("aria-expanded", open);
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.aiOpen) closeAI(); });
 document.addEventListener("click", e=>{
   const t = e.target;
-  const f = t.closest("[data-fav]"); if(f){ toggleFav(f.dataset.fav); return; }
-  const ask = t.closest("[data-ask]"); if(ask){ askAssistant(ask.dataset.ask); return; }
-  if(t.id==="chatReset"){ S.chat=[]; route(true); return; }
+  const f = t.closest("[data-fav]"); if(f){ e.preventDefault(); toggleFav(f.dataset.fav); return; }
+  const ask = t.closest("[data-ask]"); if(ask){ setAiTab("chat"); askAssistant(ask.dataset.ask); return; }
+  const aitab = t.closest("[data-aitab]"); if(aitab){ setAiTab(aitab.dataset.aitab); return; }
+  const pc = t.closest("[data-plan-city]"); if(pc){ S.plan.city = pc.dataset.planCity; S.plan.result = null; S.plan.error = ""; location.hash = "planificateur"; return; }
+  const it = t.closest("[data-interest]"); if(it){ const v = it.dataset.interest; S.plan.interests.has(v) ? S.plan.interests.delete(v) : S.plan.interests.add(v); it.setAttribute("aria-pressed", S.plan.interests.has(v)); return; }
+  if(t.closest("[data-plan-go]")){ generatePlan(); return; }
+  if(t.id==="copyPlan"){
+    const txt = planAsText();
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast("Programme copié"), ()=>toast("Copie impossible : sélectionnez le texte à la main."));
+    return;
+  }
+  if(t.closest(".mini") && window.innerWidth<=560) closeAI();
+  const mood = t.closest("[data-mood]");
+  if(mood){ const [k,v] = mood.dataset.mood.split(":"); S.ex = {city:"", cats:new Set(), prices:new Set(), q:"", shown:24}; (k==="cat"?S.ex.cats:S.ex.prices).add(v); return; }
   const tab = t.closest("[data-tab]"); if(tab){ S.authTab = tab.dataset.tab; route(true); return; }
   const a = t.closest("[data-approve]"), r = t.closest("[data-reject]");
   if(a||r){ (a||r).disabled=true; moderate((a||r).dataset[a?"approve":"reject"], !!a); return; }
   if(t.closest("[data-logout]")){ sb.auth.signOut().then(()=>{ toast("Vous êtes déconnecté"); location.hash="accueil"; }); return; }
-  if(t.closest("[data-del-ask]")){ document.getElementById("delZone").innerHTML = `<p style="margin-bottom:12px">Cette suppression est définitive. Confirmer ?</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button data-del-yes>Oui, supprimer</button><button class="ghost" data-del-no>Annuler</button></div>`; return; }
+  if(t.id==="exportData"){ exportData(); return; }
+  if(t.closest("[data-del-ask]")){ document.getElementById("delZone").innerHTML = `<p style="margin-bottom:12px">Cette suppression est définitive. Confirmer ?</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" data-del-yes>Oui, supprimer</button><button type="button" class="ghost" data-del-no>Annuler</button></div>`; return; }
   if(t.closest("[data-del-no]")){ route(true); return; }
   if(t.closest("[data-del-yes]")){
     t.closest("[data-del-yes]").disabled = true;
@@ -721,21 +1170,40 @@ document.addEventListener("click", e=>{
     });
     return;
   }
-  const key = route0();
+  if(t.id==="showMore"){ S.ex.shown += 24; renderExplore(); return; }
+  const h = route0(), F = h==="explorer" ? S.ex : S.f;
   const cat = t.closest("[data-cat]"), pr = t.closest("[data-price]");
-  if(cat||pr){ const set = cat?S.f.cats:S.f.prices, v = cat?cat.dataset.cat:pr.dataset.price;
-    set.has(v)?set.delete(v):set.add(v); (cat||pr).setAttribute("aria-pressed", set.has(v)); renderResults(key); return; }
-  if(t.id==="reset"){ S.f.cats.clear(); S.f.prices.clear(); S.f.q=""; route(true); }
+  if(cat||pr){ const set = cat?F.cats:F.prices, v = cat?cat.dataset.cat:pr.dataset.price;
+    set.has(v)?set.delete(v):set.add(v); (cat||pr).setAttribute("aria-pressed", set.has(v));
+    if(h==="explorer"){ S.ex.shown=24; renderExplore(); } else renderResults(h); return; }
+  const rs = t.closest("[data-reset]");
+  if(rs){ if(rs.dataset.reset==="ex") S.ex = {city:"", cats:new Set(), prices:new Set(), q:"", shown:24}; else { S.f.cats.clear(); S.f.prices.clear(); S.f.q=""; } route(true); }
 });
 document.addEventListener("input", e=>{
-  if(e.target.id==="q"){ S.f.q=e.target.value; renderResults(route0()); }
-  if(e.target.id==="chatInput"){ S.chatDraft = e.target.value; }
+  if(e.target.id==="q"){ if(route0()==="explorer"){ S.ex.q=e.target.value; S.ex.shown=24; renderExplore(); } else { S.f.q=e.target.value; renderResults(route0()); } }
 });
-document.addEventListener("change", e=>{ if(e.target.id==="sort"){ S.f.sort=e.target.value; renderResults(route0()); } });
+document.addEventListener("change", e=>{
+  if(e.target.id==="sort"){ S.f.sort=e.target.value; renderResults(route0()); }
+  if(e.target.id==="exCity"){ S.ex.city=e.target.value; S.ex.shown=24; renderExplore(); }
+  if(e.target.id==="plCity") S.plan.city = e.target.value;
+  if(e.target.id==="plDays") S.plan.days = parseInt(e.target.value,10);
+  if(e.target.id==="plBudget") S.plan.budget = e.target.value;
+});
+document.addEventListener("input", e=>{ if(e.target.id==="plNote") S.plan.note = e.target.value; });
 document.addEventListener("submit", async e=>{
   const id = e.target.id; e.preventDefault();
   const val = k => (document.getElementById(k)?.value || "").trim();
   const btn = e.target.querySelector("button[type=submit]");
+  if(id==="chatForm"){ askAssistant(val("chatInput")); return; }
+  if(id==="planForm"){
+    S.plan.city = val("plCity"); S.plan.days = parseInt(val("plDays"),10); S.plan.budget = val("plBudget"); S.plan.note = val("plNote");
+    generatePlan(); return;
+  }
+  if(id==="aiPlanForm"){
+    S.plan.city = val("apCity"); S.plan.days = parseInt(val("apDays"),10); S.plan.budget = val("apBudget");
+    if(window.innerWidth<=900) closeAI();
+    generatePlan(); return;
+  }
   if(id==="citySearch"){
     const v = val("cityInput").toLowerCase();
     const k = Object.keys(CITIES).find(k=>k===v || CITIES[k].name.toLowerCase()===v);
@@ -743,7 +1211,6 @@ document.addEventListener("submit", async e=>{
     if(k){ location.hash = k; } else { msg.hidden=false; msg.textContent = v ? `Pas encore de spots pour « ${v} ». Villes disponibles : ${Object.values(CITIES).map(c=>c.name).join(", ")}.` : "Tapez le nom d'une ville."; }
     return;
   }
-  if(id==="chatForm"){ askAssistant(val("chatInput")); return; }
   if(id==="loginForm"){
     showMsg("lErr",""); showMsg("lOk","");
     if(!val("lEmail") || !val("lPass")){ showMsg("lErr","Indiquez votre e-mail et votre mot de passe."); return; }
@@ -804,6 +1271,7 @@ let lastCity = CITIES[route0()] ? route0() : null;
 window.addEventListener("hashchange", ()=>{ const h=route0(); if(CITIES[h] && h!==lastCity){ S.f.cats.clear(); S.f.prices.clear(); S.f.q=""; lastCity=h; } route(); });
 
 /* ================= démarrage ================= */
+document.getElementById("footCities").innerHTML = Object.entries(CITIES).map(([k,c])=>`<li><a href="#${k}">${c.name}</a></li>`).join("");
 if(!LIVE) S.favs = demoFavsLoad();
 route();
 loadSpots();

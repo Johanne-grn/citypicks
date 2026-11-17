@@ -8,12 +8,14 @@ Tout est gratuit. Compte environ **30 à 45 minutes** la première fois.
 |---|---|
 | `index.html` | Le site complet (design, villes, fiches, favoris, comptes, assistant IA) |
 | `config.js` | L'adresse de votre base Supabase (à remplir, étape 2) |
-| `data/spots.json` | Les 90 spots, utilisés en mode démo et en secours par l'assistant |
+| `data/spots.json` | Les 360 spots (12 villes × 30), utilisés en mode démo et en secours par l'assistant |
 | `img/` | Les 69 photos (Wikimedia Commons, crédits sur chaque fiche) |
-| `netlify/functions/chat.mjs` | Le « cerveau » de l'assistant : il parle à Gemini depuis le serveur, la clé reste cachée |
+| `netlify/edge-functions/chat.js` | Le « cerveau » de l'assistant : il parle à Gemini depuis le serveur, la clé reste cachée |
+| `netlify/edge-functions/plan.js` | L'agent « Planificateur de séjour » : compose un itinéraire jour par jour |
 | `netlify.toml` | Les réglages Netlify (rien à modifier) |
 | `supabase/1_schema.sql` | Crée les tables et les règles de sécurité de la base |
-| `supabase/2_spots.sql` | Ajoute les 90 spots dans la base |
+| `supabase/2_spots.sql` | Ajoute les 360 spots dans une base neuve |
+| `supabase/3_mise-a-jour-v2.sql` | Met à jour une base déjà installée (passage de 6 à 12 villes) |
 
 **Mode démo :** tant que `config.js` est vide, le site marche quand même. Le catalogue vient de `data/spots.json`, les favoris restent dans le navigateur et les comptes sont désactivés. Pratique pour un premier essai.
 
@@ -30,7 +32,7 @@ Tout est gratuit. Compte environ **30 à 45 minutes** la première fois.
 3. Menu de gauche → **SQL Editor** → *New query*.
    - Ouvrez `supabase/1_schema.sql` avec le Bloc-notes, copiez **tout**, collez, cliquez **Run**. Le message doit être *Success. No rows returned*.
    - *New query* à nouveau → collez **tout** `supabase/2_spots.sql` → **Run**.
-4. Vérification : menu **Table Editor** → table `spots` → vous devez voir **90 lignes**.
+4. Vérification : menu **Table Editor** → table `spots` → vous devez voir **360 lignes**.
 
 ## Étape 2 — Brancher le site sur Supabase
 
@@ -71,7 +73,7 @@ L'offre gratuite a des limites (nombre de questions par minute et par jour). Si 
 1. Créez un compte sur **github.com** si besoin.
 2. **+** (en haut à droite) → *New repository* → nom `citypicks` → **Public** ou **Private** → *Create repository*.
 3. Sur la page du dépôt vide : *uploading an existing file* → glissez **le contenu** du dossier `citypicks-netlify` (tous les fichiers et sous-dossiers : `index.html`, `config.js`, `img`, `data`, `netlify`, `supabase`, `netlify.toml`…) → *Commit changes*.
-4. Vérifiez que `netlify/functions/chat.mjs` apparaît bien dans le dépôt.
+4. Vérifiez que le dossier `netlify/edge-functions` (avec `chat.js` et `plan.js`) apparaît bien dans le dépôt.
 
 **5b. Brancher Netlify**
 1. **app.netlify.com** → connectez-vous avec GitHub.
@@ -84,7 +86,7 @@ L'offre gratuite a des limites (nombre de questions par minute et par jour). Si 
    | `GEMINI_API_KEY` | votre clé Gemini (étape 4) |
    | `SUPABASE_URL` | la même URL que dans `config.js` |
    | `SUPABASE_ANON_KEY` | la même clé anon que dans `config.js` |
-   | `GEMINI_MODEL` *(facultatif)* | par défaut `gemini-4-hydrogen` ; à remplir seulement si ce modèle n'existe plus : mettez le nom d'un modèle gratuit affiché dans AI Studio (en haut à droite du Playground) |
+   | `GEMINI_MODEL` *(facultatif)* | à laisser vide : le site utilise des modèles gratuits rapides (`gemini-flash-lite-latest`, puis deux modèles de secours si Google est saturé) |
 
 5. **Deploys → Trigger deploy → Deploy site** pour que les variables soient prises en compte.
 6. Votre site a une adresse du type `https://citypicks-xxxx.netlify.app`. Vous pouvez la renommer dans *Site configuration → Change site name*.
@@ -142,9 +144,23 @@ Notez les réponses obtenues dans le journal de prompts.
 
 | Symptôme | Solution |
 |---|---|
-| Badge « Mode démo » en haut à droite | `config.js` est vide ou mal rempli (vérifiez les guillemets), puis republiez |
+| Le site dit « Les comptes ne sont pas activés (mode démo) » | `config.js` est vide ou mal rempli (vérifiez les guillemets), puis republiez. Astuce : ajouter `?demo` à l'adresse force le mode démo pour tester |
 | « L'assistant n'est pas encore configuré » | Variable `GEMINI_API_KEY` manquante dans Netlify, puis *Trigger deploy* |
-| « L'assistant n'a pas pu répondre » | Netlify → *Logs → Functions → chat* : si le modèle est introuvable, renseignez `GEMINI_MODEL` |
+| « L'assistant n'a pas pu répondre » | Netlify → *Logs → Edge Functions* : si le modèle est introuvable, renseignez `GEMINI_MODEL` |
 | « Les adresses n'ont pas pu être chargées » | Le script `2_spots.sql` n'a pas été exécuté, ou mauvaise URL/clé dans `config.js` |
 | L'inscription ne connecte pas | *Confirm email* est encore activé (étape 3) |
 | Pas de lien Modération | Étape 6.3 non faite, ou e-mail différent de celui du compte |
+
+---
+
+## Mise à jour v2 (12 villes, 360 spots) sur une base déjà installée
+
+Si votre base Supabase a été créée avec l'ancienne version (6 villes, 90 spots) :
+
+1. Supabase → **SQL Editor** → *New query*.
+2. Collez **tout** le contenu de `supabase/3_mise-a-jour-v2.sql` → **Run**.
+   - Si une fenêtre parle d'opération « destructive », confirmez : le script retire seulement les anciens spots qui ne font plus partie de la sélection. Les spots publiés depuis la page Modération sont conservés.
+3. En bas, le tableau de vérification doit afficher **12 villes à 30 spots**.
+4. Les favoris qui pointaient vers un spot retiré disparaissent automatiquement.
+
+Le script peut être relancé sans risque.
